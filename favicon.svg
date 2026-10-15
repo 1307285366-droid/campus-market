@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="校园集市">
+    <!--
+      浏览器标签页上的小图标。
+
+      为什么用 SVG 而不是 .ico / .png？
+        · 一个文件搞定所有尺寸，缩放不糊
+        · 纯文本，改颜色就是改两个色值，不用开设计软件
+        · 几行代码，不用额外下载任何东西
+
+      配色和站点主题保持一致：粉 → 紫的渐变。
+    -->
+    <defs>
+        <linearGradient id="brand" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#E26D95"/>
+            <stop offset="1" stop-color="#B08FE8"/>
+        </linearGradient>
+    </defs>
+
+    <!-- 圆角方形底 + 白色“集”字 -->
+    <rect width="64" height="64" rx="16" fill="url(#brand)"/>
+    <text x="32" y="46"
+          font-size="38"
+          font-weight="700"
+          text-anchor="middle"
+          fill="#FFFFFF"
+          font-family="PingFang SC, Microsoft YaHei, Hiragino Sans GB, sans-serif">集</text>
+</svg>

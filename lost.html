@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<!-- 声明文档类型为 HTML5，浏览器会以“标准模式”渲染页面 -->
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="校园集市失物招领 —— 丢了东西别着急，捡到东西也别发愁">
+    <title>失物招领 - 校园集市</title>
+
+    <!-- 样式表只有一份，所有页面共用 -->
+    <link rel="stylesheet" href="style.css">
+
+    <!-- 浏览器标签页上的小图标。SVG 一个文件适配所有尺寸，缩放不糊 -->
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+
+    <!-- 手机浏览器地址栏的配色，跟着站点主题走。没有这句会是一截白条 -->
+    <meta name="theme-color" content="#FFE1EA">
+
+    <!-- 脚本：common.js 是所有页面都要的公共部分，
+         后面的才是这一页专用的。defer 保证它们按书写顺序执行。 -->
+    <script src="common.js" defer></script>
+    <script src="chat.js" defer></script>
+    <script src="lost.js" defer></script>
+</head>
+<body>
+
+<header class="navbar">
+        <!-- 用一个容器把内容限制在最大宽度内并水平居中，内容不会贴到屏幕两边 -->
+        <div class="nav-container">
+
+            <!-- Logo 区域：点击可以回到首页 -->
+            <a href="index.html" class="logo">
+                <span class="logo-icon">🛒</span>
+                <!-- 这个 span 里的文字会被 CSS 做成“粉紫渐变文字” -->
+                <span class="logo-text">校园集市</span>
+            </a>
+
+            <!-- <nav> 表示“导航”区域，<ul> 是无序列表，<li> 是列表项 -->
+            <nav class="nav-wrap">
+                <ul class="nav-menu">
+                    <!-- class="active" 用来标记“当前所在页面”，CSS 会给它加下划线。
+                         每个页面把自己的那一个改成 active 即可，
+                         这样用户一眼就知道自己在哪儿。 -->
+                    <li><a href="index.html">首页</a></li>
+                    <li><a href="goods.html">二手交易</a></li>
+                    <li><a href="errand.html">校园跑腿</a></li>
+                    <li><a href="lost.html" class="active">失物招领</a></li>
+                    <li><a href="about.html">关于我们</a></li>
+                </ul>
+            </nav>
+
+        </div>
+    </header>
+
+    <main>
+
+        <section class="page-hero">
+            <div class="page-hero-inner">
+                <nav class="breadcrumb" aria-label="当前位置">
+                    <a href="index.html">首页</a>
+                    <span class="breadcrumb-sep" aria-hidden="true">/</span>
+                    <span aria-current="page">失物招领</span>
+                </nav>
+                <h1 class="page-title">失物招领</h1>
+                <p class="page-desc">丢了东西别着急，捡到东西也别发愁。校内的失物招领信息都汇总在这里，看到熟悉的就赶紧联系。</p>
+            </div>
+        </section>
+
+        <section class="page-main">
+
+            <div class="chip-row">
+                <button type="button" class="chip is-active" data-kind="all"   aria-pressed="true">全部信息</button>
+                <button type="button" class="chip"           data-kind="lost"  aria-pressed="false">🙋 我丢了东西</button>
+                <button type="button" class="chip"           data-kind="found" aria-pressed="false">🎁 我捡到东西</button>
+            </div>
+
+            <p class="result-line">共 <strong id="resultCount">6</strong> 条信息</p>
+
+            <ul class="list-stack" id="lostList">
+
+                <li class="list-card" data-kind="lost">
+                    <div class="list-icon" aria-hidden="true">🎧</div>
+
+                    <div class="list-main">
+                        <div class="list-head">
+                            <span class="list-badge">寻物</span>
+                            <h3 class="list-title">AirPods Pro 一代</h3>
+                        </div>
+                        <p class="list-desc">充电盒上贴了一张小贴纸</p>
+                        <div class="list-meta">
+                            <span>📍 二教 305 教室</span>
+                            <span>⏰ 今天 10:00 左右</span>
+                            <span>👤 傻尹尹</span>
+                        </div>
+                    </div>
+
+                    <div class="list-side">
+                        <button type="button" class="btn btn--ghost btn--sm contact-btn">我有线索</button>
+                    </div>
+                </li>
+
+                <li class="list-card" data-kind="lost">
+                    <div class="list-icon" aria-hidden="true">🎒</div>
+
+                    <div class="list-main">
+                        <div class="list-head">
+                            <span class="list-badge">寻物</span>
+                            <h3 class="list-title">灰色双肩包</h3>
+                        </div>
+                        <p class="list-desc">里面有笔记本和一把雨伞</p>
+                        <div class="list-meta">
+                            <span>📍 图书馆 2 楼自习区</span>
+                            <span>⏰ 昨天 15:00 左右</span>
+                            <span>👤 时不与我</span>
+                        </div>
+                    </div>
+
+                    <div class="list-side">
+                        <button type="button" class="btn btn--ghost btn--sm contact-btn">我有线索</button>
+                    </div>
+                </li>
+
+                <li class="list-card" data-kind="lost">
+                    <div class="list-icon" aria-hidden="true">🔑</div>
+
+                    <div class="list-main">
+                        <div class="list-head">
+                            <span class="list-badge">寻物</span>
+                            <h3 class="list-title">宿舍钥匙 挂小黄鸭挂件</h3>
+                        </div>
+                        <p class="list-desc">一共三把，挂件是黄色的鸭子</p>
+                        <div class="list-meta">
+                            <span>📍 一食堂门口</span>
+                            <span>⏰ 前天中午</span>
+                            <span>👤 皇子</span>
+                        </div>
+                    </div>
+
+                    <div class="list-side">
+                        <button type="button" class="btn btn--ghost btn--sm contact-btn">我有线索</button>
+                    </div>
+                </li>
+
+                <li class="list-card" data-kind="found">
+                    <div class="list-icon" aria-hidden="true">💳</div>
+
+                    <div class="list-main">
+                        <div class="list-head">
+                            <span class="list-badge list-badge--busy">招领</span>
+                            <h3 class="list-title">校园卡（姓名已打码）</h3>
+                        </div>
+                        <p class="list-desc">照片交给前台保管了，不公开</p>
+                        <div class="list-meta">
+                            <span>📍 体育馆更衣室</span>
+                            <span>⏰ 今天下午</span>
+                            <span>👤 体育馆前台</span>
+                        </div>
+                    </div>
+
+                    <div class="list-side">
+                        <button type="button" class="btn btn--ghost btn--sm contact-btn">我要认领</button>
+                    </div>
+                </li>
+
+                <li class="list-card" data-kind="found">
+                    <div class="list-icon" aria-hidden="true">☂️</div>
+
+                    <div class="list-main">
+                        <div class="list-head">
+                            <span class="list-badge list-badge--busy">招领</span>
+                            <h3 class="list-title">黑色长柄雨伞</h3>
+                        </div>
+                        <p class="list-desc">伞柄上有一圈磨损的痕迹</p>
+                        <div class="list-meta">
+                            <span>📍 三教 101 教室</span>
+                            <span>⏰ 昨天傍晚</span>
+                            <span>👤 3 号楼值班室</span>
+                        </div>
+                    </div>
+
+                    <div class="list-side">
+                        <button type="button" class="btn btn--ghost btn--sm contact-btn">我要认领</button>
+                    </div>
+                </li>
+
+                <li class="list-card" data-kind="found">
+                    <div class="list-icon" aria-hidden="true">🔋</div>
+
+                    <div class="list-main">
+                        <div class="list-head">
+                            <span class="list-badge list-badge--busy">招领</span>
+                            <h3 class="list-title">白色充电宝 10000mAh</h3>
+                        </div>
+                        <p class="list-desc">侧面有一条浅浅的划痕</p>
+                        <div class="list-meta">
+                            <span>📍 图书馆一楼大厅</span>
+                            <span>⏰ 昨天上午</span>
+                            <span>👤 图书馆前台</span>
+                        </div>
+                    </div>
+
+                    <div class="list-side">
+                        <button type="button" class="btn btn--ghost btn--sm contact-btn">我要认领</button>
+                    </div>
+                </li>
+
+            </ul>
+
+            <div class="empty-state" id="emptyState" hidden>
+                <div class="empty-icon">📭</div>
+                <p class="empty-title">这个分类暂时没有信息</p>
+                <p class="empty-desc">换个分类看看，或者自己发布一条</p>
+                <button type="button" class="empty-btn" id="emptyResetBtn">查看全部信息</button>
+            </div>
+
+        </section>
+
+    </main>
+
+    <button type="button" class="fab" id="publishBtn">
+        <span class="fab-plus" aria-hidden="true">＋</span>
+        <span>发布信息</span>
+    </button>
+<div class="toast-wrap" id="toastWrap" aria-live="polite"></div>
+
+    <!-- ==================================================================
+         发布信息弹窗
+
+         失物招领的字段是“物品名称 / 地点 / 时间 / 描述 / 联系方式”，
+         和商品完全不同，所以单独写一份。
+         ================================================================== -->
+    <dialog class="publish-modal" id="publishModal">
+
+        <button type="button" class="modal-close" aria-label="关闭弹窗">×</button>
+
+        <form class="publish-form" id="publishForm" novalidate>
+
+            <h2 class="publish-title">发布失物信息</h2>
+            <p class="publish-sub">写清楚东西的样子和大致位置，方便别人比对</p>
+
+            <!-- 类型选择。这里复用了 .chip 那套胶囊按钮的样式，
+                 但行为和筛选标签不同：这是表单的一部分，选中的值要提交。 -->
+            <div class="field">
+                <span class="field-label">信息类型</span>
+                <div class="chip-row chip-row--inline" id="kindPicker">
+                    <button type="button" class="chip is-active" data-kind="lost"  aria-pressed="true">🙋 我丢了东西</button>
+                    <button type="button" class="chip"           data-kind="found" aria-pressed="false">🎁 我捡到东西</button>
+                </div>
+            </div>
+
+            <div class="field">
+                <label class="field-label" for="pubTitle">物品名称 <span class="req">*</span></label>
+                <input id="pubTitle" type="text" class="field-input" maxlength="24"
+                       placeholder="例如：AirPods Pro 一代">
+                <p class="field-error">请填写物品名称</p>
+            </div>
+
+            <div class="field-row">
+                <div class="field">
+                    <label class="field-label" for="pubPlace">大致地点 <span class="req">*</span></label>
+                    <input id="pubPlace" type="text" class="field-input" maxlength="30"
+                           placeholder="例如：二教 305 教室">
+                    <p class="field-error">请填写大致地点</p>
+                </div>
+                <div class="field">
+                    <label class="field-label" for="pubTime">时间</label>
+                    <select id="pubTime" class="field-input">
+                        <option>刚刚</option>
+                        <option selected>今天</option>
+                        <option>昨天</option>
+                        <option>更早以前</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="field">
+                <label class="field-label" for="pubDesc">物品描述</label>
+                <textarea id="pubDesc" class="field-input field-textarea" rows="3" maxlength="120"
+                          placeholder="颜色、品牌、有什么特别的痕迹……越具体越容易对上"></textarea>
+            </div>
+
+            <div class="field">
+                <label class="field-label" for="pubContact">联系方式 <span class="req">*</span></label>
+                <input id="pubContact" type="text" class="field-input" maxlength="40"
+                       placeholder="微信号 / QQ / 手机号">
+                <p class="field-error">留个联系方式，不然别人找不到你</p>
+            </div>
+
+            <div class="publish-actions">
+                <button type="button" class="modal-btn modal-btn--ghost" data-close>取消</button>
+                <button type="submit" class="modal-btn modal-btn--primary">确认发布</button>
+            </div>
+
+        </form>
+    </dialog>
+
+<footer class="footer">
+        <div class="footer-container">
+
+            <!-- 页脚文字链接：可以复用导航菜单的思路，也是一组 <ul> + <li> -->
+            <ul class="footer-links">
+                <li><a href="about.html">关于我们</a></li>
+                <li><a href="goods.html">二手交易</a></li>
+                <li><a href="errand.html">校园跑腿</a></li>
+                <li><a href="lost.html">失物招领</a></li>
+            </ul>
+
+            <!-- 版权信息：&copy; 是 HTML 实体，显示出来就是 © 符号 -->
+            <p class="footer-copyright">
+                &copy; 2026 校园集市 Campus Market · 为同学们用心打造
+            </p>
+
+        </div>
+    </footer>
+
+    <!-- ==================================================================
+         私信弹窗（点“我要接单 / 我要认领 / 我有线索”打开）
+         和商品页用的是同一个组件 —— 结构、样式、脚本完全共用。
+         ================================================================== -->
+<dialog class="chat-modal" id="chatModal">
+
+        <div class="chat-head">
+            <!-- 头像就取名字的第一个字，不需要图片 -->
+            <div class="chat-avatar" id="chatAvatar" aria-hidden="true">卖</div>
+
+            <div class="chat-who">
+                <h2 class="chat-name" id="chatName">卖家</h2>
+                <p class="chat-sub" id="chatSub">校园集市私信</p>
+            </div>
+
+            <button type="button" class="chat-close" id="chatClose" aria-label="关闭私信">×</button>
+        </div>
+
+        <!-- role="log" 是给读屏软件的信号：
+             “这是一串会不断往下追加的消息流，有新消息就念出来”。 -->
+        <ul class="chat-list" id="chatList" role="log" aria-label="聊天记录"></ul>
+
+        <!-- 快捷短语。内容由 chat.js 按场景填进来（商品 / 跑腿 / 失物 各不相同），
+             所以这里只留一个空容器。 -->
+        <div class="chat-quick" id="chatQuick"></div>
+
+        <form class="chat-form" id="chatForm">
+            <input type="text" class="chat-input" id="chatInput" autocomplete="off"
+                   placeholder="打个招呼吧，问问成色、能不能面交……" aria-label="输入消息">
+            <button type="submit" class="chat-send">发送</button>
+        </form>
+
+    </dialog>
+
+    <!-- 回到顶部。滚过一屏才出现，点一下平滑滚回去，逻辑在 common.js 里 -->
+    <button type="button" class="to-top to-top--high" id="toTop" aria-label="回到顶部">
+        <span aria-hidden="true">↑</span>
+    </button>
+
+</body>
+</html>

@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<!-- 声明文档类型为 HTML5，浏览器会以“标准模式”渲染页面 -->
+<html lang="zh-CN">
+<!-- lang="zh-CN" 告诉浏览器和搜索引擎：本页面的主要语言是简体中文 -->
+
+<head>
+    <!-- ==================== 页面元信息（不会显示在页面上） ==================== -->
+
+    <!-- 字符编码使用 UTF-8，否则中文可能显示成乱码 -->
+    <meta charset="UTF-8">
+
+    <!-- 移动端适配：让页面宽度 = 设备宽度，初始缩放比例为 1，保证手机上不变形 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- 页面描述，主要给搜索引擎看（SEO），对页面显示没有影响 -->
+    <meta name="description" content="校园集市 —— 大学生专属的二手交易、校园跑腿与失物招领平台">
+
+    <!-- 显示在浏览器标签页上的标题 -->
+    <title>校园集市 - 大学生二手交易与互助平台</title>
+
+    <!-- 引入外部样式表：rel="stylesheet" 表示“这是一个样式表”，href 是文件路径
+         （三个文件在同一个目录下，所以直接写文件名即可）
+         注意：<link> 必须写在 <head> 里，且要在页面渲染前加载，否则会出现“样式闪烁” -->
+    <link rel="stylesheet" href="style.css">
+
+    <!-- 浏览器标签页上的小图标。SVG 一个文件适配所有尺寸，缩放不糊 -->
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+
+    <!-- 手机浏览器地址栏的配色，跟着站点主题走。没有这句会是一截白条 -->
+    <meta name="theme-color" content="#FFE1EA">
+
+    <!-- ==================== 引入脚本 ====================
+
+         三个文件按顺序执行（defer 会保证按书写顺序跑，不会打乱）：
+
+           common.js  公共部分：提示条、本地存储、通用小工具
+           goods.js   商品模块：卡片、排序、收藏、筛选、弹窗、发布
+           home.js    只有首页才有的：首屏搜索栏、数字滚动统计
+
+         拆开的好处：二手交易页也只需要 common.js + goods.js，
+         不用把首页那套搜索栏和统计条的代码也拖过去。
+         （浏览器会缓存这几个文件，第二个页面打开时不会重新下载。）
+
+         defer 表示“等 HTML 全部解析完再执行”，
+         否则脚本可能找不到还没被创建出来的页面元素。 -->
+    <script src="common.js" defer></script>
+    <script src="chat.js" defer></script>
+    <script src="goods.js" defer></script>
+    <script src="home.js" defer></script>
+</head>
+
+<body>
+
+    <!-- ==================================================================
+         一、顶部导航栏
+         <header> 表示页面的“页眉”区域；class="navbar" 交给 CSS 做固定定位 + 毛玻璃
+         ================================================================== -->
+    <header class="navbar">
+        <!-- 用一个容器把内容限制在最大宽度内并水平居中，内容不会贴到屏幕两边 -->
+        <div class="nav-container">
+
+            <!-- Logo 区域：点击可以回到首页 -->
+            <a href="index.html" class="logo">
+                <span class="logo-icon">🛒</span>
+                <!-- 这个 span 里的文字会被 CSS 做成“粉紫渐变文字” -->
+                <span class="logo-text">校园集市</span>
+            </a>
+
+            <!-- <nav> 表示“导航”区域，<ul> 是无序列表，<li> 是列表项 -->
+            <nav class="nav-wrap">
+                <ul class="nav-menu">
+                    <!-- class="active" 用来标记“当前所在页面”，CSS 会给它加下划线。
+                         每个页面把自己的那一个改成 active 即可，
+                         这样用户一眼就知道自己在哪儿。 -->
+                    <li><a href="index.html" class="active">首页</a></li>
+                    <li><a href="goods.html">二手交易</a></li>
+                    <li><a href="errand.html">校园跑腿</a></li>
+                    <li><a href="lost.html">失物招领</a></li>
+                    <li><a href="about.html">关于我们</a></li>
+                </ul>
+            </nav>
+
+        </div>
+    </header>
+
+    <!-- <main> 表示页面的“主要内容”区域，一个页面通常只写一个。
+         它同时承担着“把页脚顶到页面最底部”的任务，具体原理见 style.css -->
+    <main>
+
+        <!-- ==================================================================
+             二、欢迎横幅（Hero 区域）
+             ================================================================== -->
+        <section class="hero">
+
+            <!-- 装饰用的柔光圆斑：纯视觉效果，不承载任何信息。
+                 aria-hidden="true" 告诉屏幕阅读器“直接跳过这两个元素”，
+                 否则读屏软件可能会把它们当成无意义的内容念出来。 -->
+            <div class="hero-blob hero-blob--sakura" aria-hidden="true"></div>
+            <div class="hero-blob hero-blob--lilac" aria-hidden="true"></div>
+
+            <div class="hero-content">
+
+                <!-- 小徽章：一句话点明产品定位，比直接上大标题更有层次 -->
+                <span class="hero-badge">🌸 大学生专属的校园互助平台</span>
+
+                <!-- h1 是页面的一级标题，一个页面最好只出现一次 -->
+                <h1 class="hero-title">校园集市</h1>
+
+                <!-- 副标题：对主标题做进一步说明 -->
+                <p class="hero-subtitle">闲置物品一键转让 · 跑腿任务随手发布 · 失物招领快速找回</p>
+
+                <!-- ============================================================
+                     搜索栏（本页核心入口）
+
+                     role="search" 是一个无障碍标记，告诉读屏软件“这块是搜索区”。
+                     用 <form> 包起来的好处：按回车键能直接提交，不用另外写键盘事件。
+
+                     ★ 注意每个 tab 上的 data-placeholder 属性。
+                       data-* 是 HTML5 提供的“自定义数据属性”，
+                       专门用来在标签上挂一些 JS 需要读、但页面上不显示的小数据。
+                       这里存的是“切换到该标签时，输入框应该显示什么提示语”，
+                       JS 用 tab.dataset.placeholder 就能读到。
+                     ============================================================ -->
+                <form class="search-card" role="search">
+
+                    <!-- 搜索类型切换标签 -->
+                    <div class="search-tabs" aria-label="选择搜索类型">
+
+                        <!-- is-active 表示“当前选中”。
+                             type="button" 很关键：<button> 在 form 里默认是 submit，
+                             不加这句，点标签会直接提交表单刷新页面。 -->
+                        <button type="button" class="search-tab is-active" aria-pressed="true"
+                                data-tab="goods"
+                                data-placeholder="搜索球拍、自行车、首饰、茶酒…">搜商品</button>
+
+                        <button type="button" class="search-tab" aria-pressed="false"
+                                data-tab="errand"
+                                data-placeholder="搜索取快递、带饭、代买文具…">搜跑腿</button>
+
+                        <button type="button" class="search-tab" aria-pressed="false"
+                                data-tab="lost"
+                                data-placeholder="搜索校园卡、雨伞、耳机…">搜失物</button>
+
+                    </div>
+
+                    <!-- 输入行：放大镜图标 + 输入框 + 搜索按钮 -->
+                    <div class="search-row">
+                        <span class="search-icon" aria-hidden="true">🔍</span>
+
+                        <!-- aria-label 是给读屏软件念的说明。
+                             因为这里没有可见的 <label> 文字，所以要补一个 -->
+                        <input type="search" class="search-input"
+                               placeholder="搜索球拍、自行车、首饰、茶酒…"
+                               aria-label="搜索内容">
+
+                        <button type="submit" class="search-submit">搜索</button>
+                    </div>
+
+                </form>
+
+            </div>
+        </section>
+
+        <!-- ==================================================================
+             三、数据统计条
+             用一组数字快速建立信任感。它靠负外边距“骑”在 Hero 的底边上，
+             和 Hero 的圆角咬合在一起，是很常见的精致排版手法。
+             ================================================================== -->
+        <section class="stats">
+            <div class="stats-card">
+
+                <!-- 每个数字都是「数值 + 说明」的结构。
+                     data-target 存目标数字、data-suffix 存单位，
+                     script.js 会读这两个属性做“数字从 0 滚上来”的动画。
+                     标签里的文字是给 JS 没加载出来时兜底用的。 -->
+                <div class="stat">
+                    <span class="stat-num" data-target="12000" data-suffix="+">12,000+</span>
+                    <span class="stat-label">注册同学</span>
+                </div>
+
+                <div class="stat">
+                    <span class="stat-num" data-target="8600" data-suffix="+">8,600+</span>
+                    <span class="stat-label">在售商品</span>
+                </div>
+
+                <div class="stat">
+                    <span class="stat-num" data-target="3200" data-suffix="+">3,200+</span>
+                    <span class="stat-label">完成跑腿</span>
+                </div>
+
+                <div class="stat">
+                    <span class="stat-num" data-target="98" data-suffix="%">98%</span>
+                    <span class="stat-label">好评率</span>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- ==================================================================
+             四、核心功能卡片
+             ================================================================== -->
+        <section class="features">
+
+            <!-- 标题用 <span> 包住后半部分，方便单独给这几个字上色（标题高亮） -->
+            <h2 class="section-title">核心<span>功能</span></h2>
+            <p class="section-subtitle">同学们最常用的三个功能，一站式解决校园生活小事</p>
+
+            <!-- 外层用 CSS Grid 布局，三张卡片会自动排列并适配屏幕宽度 -->
+            <div class="card-grid">
+
+                <!-- 卡片 1：二手交易
+
+                     ★ 整张卡片本身就是一个 <a>，点哪儿都能跳进对应的页面。
+
+                       注意里面那个“去看看”必须写成 <span>，不能再是 <a> ——
+                       <a> 里面套 <a> 是无效的 HTML，浏览器会把它拆开，
+                       结果是点小链接跳一次、点卡片又跳一次，甚至两次都跳不出去。
+                       所以这里只保留它的样子（.card-link 那套样式），
+                       跳转交给外层的卡片来负责。 -->
+                <a class="card" href="goods.html">
+                    <!-- 图标：这里先用 emoji，不需要额外下载图片，后续可以换成 <img> -->
+                    <div class="card-icon">📚</div>
+                    <h3 class="card-title">二手交易</h3>
+                    <p class="card-desc">球拍、自行车、首饰、茶酒……把闲置的好物低价转给需要的同学，省钱又环保。</p>
+                    <span class="card-link">去看看 →</span>
+                </a>
+
+                <!-- 卡片 2：校园跑腿 -->
+                <a class="card" href="errand.html">
+                    <div class="card-icon">🏃</div>
+                    <h3 class="card-title">校园跑腿</h3>
+                    <p class="card-desc">取快递、带饭、代买文具，发布任务或顺手接单，同学之间互相帮忙。</p>
+                    <span class="card-link">去看看 →</span>
+                </a>
+
+                <!-- 卡片 3：失物招领 -->
+                <a class="card" href="lost.html">
+                    <div class="card-icon">🔍</div>
+                    <h3 class="card-title">失物招领</h3>
+                    <p class="card-desc">丢了东西别着急，捡到东西也别发愁，在这里发布信息快速找回失主。</p>
+                    <span class="card-link">去看看 →</span>
+                </a>
+
+            </div>
+        </section>
+
+
+        <!-- ==================================================================
+             五、热门好物
+             这一块把首页从“介绍页”变成“真的有内容的集市”，
+             是让页面显得“活”的关键。
+             ================================================================== -->
+        <!-- id="hot" 是给页内跳转用的锚点：
+             “核心功能”里那张二手交易卡片的“去看看”就指向这里。 -->
+        <section class="hot" id="hot">
+
+            <h2 class="section-title">热门<span>好物</span></h2>
+            <p class="section-subtitle">刚刚发布的同学闲置，手快有手慢无</p>
+
+            <!-- 排序工具栏。
+                 data-sort 的值要和 script.js 里 sorters 查找表的键名一致。 -->
+            <div class="goods-toolbar">
+                <span class="toolbar-label">排序</span>
+
+                <!-- 三个排序按钮是一组“单选”：点一个，另外两个自动取消 -->
+                <button type="button" class="sort-btn is-active" aria-pressed="true"  data-sort="time">最新发布</button>
+                <button type="button" class="sort-btn" aria-pressed="false" data-sort="price">价格最低</button>
+                <button type="button" class="sort-btn" aria-pressed="false" data-sort="hot">人气最高</button>
+
+                <!-- 一条细竖线，把“排序”和“筛选”这两类操作分开 -->
+                <span class="toolbar-divider" aria-hidden="true"></span>
+
+                <!-- 这个和排序按钮不一样，它是一个可以独立开关的“切换键”：
+                     任意排序下都能叠加使用。所以 aria-pressed 表达的是开/关，
+                     而不是“这一组里的第几个”。 -->
+                <button type="button" class="fav-filter" id="favFilterBtn" aria-pressed="false">
+                    <span class="fav-filter-heart" aria-hidden="true">♡</span>
+                    <span>只看收藏</span>
+                    <span class="fav-count" id="favCount">0</span>
+                </button>
+            </div>
+
+            <div class="goods-grid">
+
+                <!-- 商品卡片。
+                     注意 .goods-thumb 现在是 emoji 占位，
+                     以后换成 <img src="..." alt="..."> 就能直接放真实图片。 -->
+                <article class="goods-card"
+                         tabindex="0"
+                         aria-haspopup="dialog"
+                         data-id="demo-1"
+                         data-category="运动器材"
+                         data-time="3" data-price="180" data-hot="328"
+                         data-seller="五子棋"
+                         data-desc="大一买的，打了一个学期，拍面无磕碰，手柄胶刚换过新的。附送拍包和两个备用吸汗带。">
+                    <div class="goods-thumb">🏸</div>
+                    <span class="goods-tag">九成新</span>
+
+                    <!-- 收藏按钮。浮在图片右上角，和左上角的成色标签对称。
+                         ♡ / ♥ 两个形状靠 JS 切换，不需要换图片。 -->
+                    <button type="button" class="fav-btn" aria-label="收藏" aria-pressed="false">♡</button>
+                    <div class="goods-body">
+                        <h3 class="goods-name">尤尼克斯 羽毛球拍 双拍套装</h3>
+                        <p class="goods-meta">体育学院 · 3 分钟前</p>
+                        <div class="goods-foot">
+                            <span class="goods-price">¥180</span>
+                            <span class="goods-origin">¥560</span>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="goods-card"
+                         tabindex="0"
+                         aria-haspopup="dialog"
+                         data-id="demo-2"
+                         data-category="代步工具"
+                         data-time="15" data-price="420" data-hot="512"
+                         data-seller="皇子"
+                         data-desc="毕业了带不走，车况良好，刚换过刹车皮，送车锁和打气筒。只在校本部当面交易。">
+                    <div class="goods-thumb">🚲</div>
+                    <span class="goods-tag">八成新</span>
+                    <button type="button" class="fav-btn" aria-label="收藏" aria-pressed="false">♡</button>
+                    <div class="goods-body">
+                        <h3 class="goods-name">捷安特 山地自行车 26 寸</h3>
+                        <p class="goods-meta">机械工程学院 · 15 分钟前</p>
+                        <div class="goods-foot">
+                            <span class="goods-price">¥420</span>
+                            <span class="goods-origin">¥1280</span>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="goods-card"
+                         tabindex="0"
+                         aria-haspopup="dialog"
+                         data-id="demo-3"
+                         data-category="首饰配饰"
+                         data-time="60" data-price="68" data-hot="276"
+                         data-seller="傻尹尹"
+                         data-desc="朋友送的和自己风格不搭，只戴过两次就收起来了，没有氧化发黑，附原装小盒和擦拭布。">
+                    <div class="goods-thumb">📿</div>
+                    <span class="goods-tag">九成新</span>
+                    <button type="button" class="fav-btn" aria-label="收藏" aria-pressed="false">♡</button>
+                    <div class="goods-body">
+                        <h3 class="goods-name">925 银项链 锁骨链</h3>
+                        <p class="goods-meta">外国语学院 · 1 小时前</p>
+                        <div class="goods-foot">
+                            <span class="goods-price">¥68</span>
+                            <span class="goods-origin">¥199</span>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="goods-card"
+                         tabindex="0"
+                         aria-haspopup="dialog"
+                         data-id="demo-4"
+                         data-category="首饰配饰"
+                         data-time="120" data-price="45" data-hot="194"
+                         data-seller="小猪婷"
+                         data-desc="只戴过一两次，表面没有划痕，开口式可调节大小不挑手指。附赠绒布小袋。">
+                    <div class="goods-thumb">💍</div>
+                    <span class="goods-tag">九成新</span>
+                    <button type="button" class="fav-btn" aria-label="收藏" aria-pressed="false">♡</button>
+                    <div class="goods-body">
+                        <h3 class="goods-name">足银素圈戒指 开口可调</h3>
+                        <p class="goods-meta">设计学院 · 2 小时前</p>
+                        <div class="goods-foot">
+                            <span class="goods-price">¥45</span>
+                            <span class="goods-origin">¥158</span>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="goods-card"
+                         tabindex="0"
+                         aria-haspopup="dialog"
+                         data-id="demo-5"
+                         data-category="酒水饮品"
+                         data-time="180" data-price="128" data-hot="88"
+                         data-seller="时不与我"
+                         data-desc="家里寄来的，自己平时不喝酒，原箱未拆封，保质期内。礼盒完好，送人也体面。">
+                    <div class="goods-thumb">🍷</div>
+                    <!-- 全新未拆的用另一个颜色的小标签，一眼就能区分出来 -->
+                    <span class="goods-tag goods-tag--new">全新</span>
+                    <button type="button" class="fav-btn" aria-label="收藏" aria-pressed="false">♡</button>
+                    <div class="goods-body">
+                        <h3 class="goods-name">干红葡萄酒 双支礼盒装</h3>
+                        <p class="goods-meta">管理学院 · 3 小时前</p>
+                        <div class="goods-foot">
+                            <span class="goods-price">¥128</span>
+                            <span class="goods-origin">¥398</span>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="goods-card"
+                         tabindex="0"
+                         aria-haspopup="dialog"
+                         data-id="demo-6"
+                         data-category="茶叶干货"
+                         data-time="300" data-price="96" data-hot="143"
+                         data-seller="张呆贾"
+                         data-desc="家里是茶农，今年的明前新茶，自留多了转一盒。铁罐密封包装，附手提袋，未开封。">
+                    <div class="goods-thumb">🍵</div>
+                    <span class="goods-tag goods-tag--new">全新</span>
+                    <button type="button" class="fav-btn" aria-label="收藏" aria-pressed="false">♡</button>
+                    <div class="goods-body">
+                        <h3 class="goods-name">明前龙井 特级礼盒 250g</h3>
+                        <p class="goods-meta">农学院 · 5 小时前</p>
+                        <div class="goods-foot">
+                            <span class="goods-price">¥96</span>
+                            <span class="goods-origin">¥320</span>
+                        </div>
+                    </div>
+                </article>
+
+<article class="goods-card"
+                         tabindex="0"
+                         aria-haspopup="dialog"
+                         data-id="demo-7"
+                         data-category="运动器材"
+                         data-time="8" data-price="65" data-hot="201"
+                         data-seller="谷老大"
+                         data-desc="买多了，整筒未拆封，AS-05 比赛级。可以拆成两筒分着出。">
+                    <div class="goods-thumb">🏸</div>
+                    <span class="goods-tag goods-tag--new">全新</span>
+                    <button type="button" class="fav-btn" aria-label="收藏" aria-pressed="false">♡</button>
+                    <div class="goods-body">
+                        <h3 class="goods-name">尤尼克斯 羽毛球 一筒 12 只</h3>
+                        <p class="goods-meta">体育学院 · 8 分钟前</p>
+                        <div class="goods-foot">
+                            <span class="goods-price">¥65</span>
+                            <span class="goods-origin">¥120</span>
+                        </div>
+                    </div>
+                </article>
+
+<article class="goods-card"
+                         tabindex="0"
+                         aria-haspopup="dialog"
+                         data-id="demo-8"
+                         data-category="代步工具"
+                         data-time="45" data-price="580" data-hot="367"
+                         data-seller="温温"
+                         data-desc="骑了一年上下课，电池健康，续航实测 20 公里左右。刚换过轮胎，送充电器和车锁。">
+                    <div class="goods-thumb">🛴</div>
+                    <span class="goods-tag">八成新</span>
+                    <button type="button" class="fav-btn" aria-label="收藏" aria-pressed="false">♡</button>
+                    <div class="goods-body">
+                        <h3 class="goods-name">电动滑板车 折叠款</h3>
+                        <p class="goods-meta">自动化学院 · 45 分钟前</p>
+                        <div class="goods-foot">
+                            <span class="goods-price">¥580</span>
+                            <span class="goods-origin">¥1599</span>
+                        </div>
+                    </div>
+                </article>
+
+<article class="goods-card"
+                         tabindex="0"
+                         aria-haspopup="dialog"
+                         data-id="demo-9"
+                         data-category="茶叶干货"
+                         data-time="95" data-price="158" data-hot="132"
+                         data-seller="礼拜天"
+                         data-desc="自家存的茶，2019 年的料，一直干仓存放。原包装未拆，附茶针一把。">
+                    <div class="goods-thumb">🫖</div>
+                    <span class="goods-tag goods-tag--new">全新</span>
+                    <button type="button" class="fav-btn" aria-label="收藏" aria-pressed="false">♡</button>
+                    <div class="goods-body">
+                        <h3 class="goods-name">云南普洱 熟茶饼 357g</h3>
+                        <p class="goods-meta">农学院 · 1 小时前</p>
+                        <div class="goods-foot">
+                            <span class="goods-price">¥158</span>
+                            <span class="goods-origin">¥460</span>
+                        </div>
+                    </div>
+                </article>
+
+            </div>
+
+            <!-- ============================================================
+                 筛选状态提示条
+
+                 只要用户开了筛选（搜了关键词、或开了“只看收藏”），
+                 它就出现，明明白白告诉用户“你现在看到的不是全部”。
+                 少了它，用户过一会儿就会纳闷“怎么只剩两件商品了”。
+                 ============================================================ -->
+            <div class="filter-tip" id="filterTip" hidden>
+                <span id="filterTipText"></span>
+                <button type="button" class="filter-clear" id="filterClearBtn">清除筛选</button>
+            </div>
+
+            <!-- ============================================================
+                 空状态（一件商品都没筛出来时显示）
+
+                 注意它得放在 .goods-grid 外面：
+                 网格里的元素会被当成格子来排版，放在里面会占掉一个格位。
+                 ============================================================ -->
+            <div class="empty-state" id="emptyState" hidden>
+                <div class="empty-icon">🔍</div>
+                <p class="empty-title">没有找到相关商品</p>
+                <p class="empty-desc">换个关键词试试，或者先看看全部好物</p>
+                <button type="button" class="empty-btn" id="emptyResetBtn">查看全部商品</button>
+            </div>
+
+        </section>
+
+        <!-- ==================================================================
+             六、使用流程
+             让第一次来的同学知道“这东西怎么用”，降低上手门槛。
+             ================================================================== -->
+        <section class="steps">
+
+            <h2 class="section-title">三步<span>搞定</span></h2>
+            <p class="section-subtitle">从发布到成交，最快只要十分钟</p>
+
+            <div class="steps-list">
+
+                <!-- 步骤之间那条虚线，是用 CSS 伪元素画出来的（见 style.css）。
+                     所以 HTML 里不需要额外写“连线”的标签。 -->
+                <div class="step">
+                    <div class="step-num">1</div>
+                    <h3 class="step-title">📝 发布信息</h3>
+                    <p class="step-desc">拍张照片、写清成色和价格，30 秒就能挂上架。</p>
+                </div>
+
+                <div class="step">
+                    <div class="step-num">2</div>
+                    <h3 class="step-title">💬 线上沟通</h3>
+                    <p class="step-desc">站内私信聊细节，约好交易的时间和地点。</p>
+                </div>
+
+                <div class="step">
+                    <div class="step-num">3</div>
+                    <h3 class="step-title">🤝 当面交易</h3>
+                    <p class="step-desc">校内当面验货付款，安全又放心。</p>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ==================================================================
+         四、页脚
+         即使页面内容很少、撑不满一屏，页脚也会贴在窗口最底部
+         （靠 style.css 里 body 的 flex 布局实现，不是靠固定定位）
+         ================================================================== -->
+    <footer class="footer">
+        <div class="footer-container">
+
+            <!-- 页脚文字链接：可以复用导航菜单的思路，也是一组 <ul> + <li> -->
+            <ul class="footer-links">
+                <li><a href="about.html">关于我们</a></li>
+                <li><a href="goods.html">二手交易</a></li>
+                <li><a href="errand.html">校园跑腿</a></li>
+                <li><a href="lost.html">失物招领</a></li>
+            </ul>
+
+            <!-- 版权信息：&copy; 是 HTML 实体，显示出来就是 © 符号 -->
+            <p class="footer-copyright">
+                &copy; 2026 校园集市 Campus Market · 为同学们用心打造
+            </p>
+
+        </div>
+    </footer>
+
+    <!-- ==================================================================
+         七、商品详情弹窗
+
+         这里用的是浏览器原生的 <dialog> 元素，而不是自己用 <div> 拼一个。
+         原生 <dialog> 配合 JS 的 showModal() 会免费帮我们做好三件事：
+
+           1. 按 Esc 键自动关闭
+           2. 自动把键盘焦点锁在弹窗内部（背景元素按 Tab 键选不中）
+           3. 自动盖在所有内容的最上层（top layer），不受任何 z-index 影响
+
+         这三件事自己用 div 实现要写不少代码，还容易漏掉细节。
+
+         注意：弹窗里的文字现在是写死的占位内容，
+         真正的数据由 script.js 在打开的那一刻从卡片上读出来填进去。
+         ================================================================== -->
+    <dialog class="goods-modal" id="goodsModal">
+
+        <!-- 关闭按钮。里面只有一个 × 符号，
+             aria-label 是用来告诉读屏软件“这个按钮是干嘛的”。 -->
+        <button type="button" class="modal-close" aria-label="关闭弹窗">×</button>
+
+        <!-- 图片区：和卡片一样，先放 emoji 占位 -->
+        <div class="modal-thumb" aria-hidden="true">🏸</div>
+
+        <div class="modal-body">
+
+            <!-- 这里复用卡片的 .goods-tag 样式，
+                 但在弹窗里它不再是“浮在图片上”的，所以样式表里有针对性的覆盖 -->
+            <span class="goods-tag">九成新</span>
+
+            <h2 class="modal-title">商品名称</h2>
+            <p class="modal-meta">学院 · 时间 · 卖家</p>
+
+            <div class="modal-price">
+                <span class="modal-price-now">¥0</span>
+                <span class="modal-price-origin">¥0</span>
+            </div>
+
+            <p class="modal-desc">商品描述</p>
+
+            <div class="modal-actions">
+
+                <!-- data-role 是专门留给 JS 用的“钩子”。
+                     为什么不用 class 当钩子？
+                     因为 class 是给 CSS 做样式的，以后调样式换掉类名，
+                     JS 就跟着找不到元素了。data-* 干这件事，两边互不干扰。 -->
+
+                <!-- 别人的商品：收藏 + 联系卖家 -->
+                <button type="button" class="modal-btn modal-btn--ghost"   data-role="collect">♡ 收藏</button>
+                <button type="button" class="modal-btn modal-btn--primary" data-role="contact">联系卖家</button>
+
+                <!-- 自己发布的商品：编辑 + 撤回。
+                     hidden 是 HTML 自带的隐藏开关，JS 只要切换这个属性就行。
+                     （前提是 .modal-btn 没设置 display，否则会把 hidden 覆盖掉——我们确实没设。） -->
+                <button type="button" class="modal-btn modal-btn--ghost"  data-role="edit"   hidden>编辑</button>
+                <button type="button" class="modal-btn modal-btn--danger" data-role="delete" hidden>撤回发布</button>
+
+            </div>
+
+        </div>
+    </dialog>
+
+    <!-- ==================================================================
+         八、顶部提示条容器
+
+         平时是个空的盒子，JS 往里塞提示条时，它会自动出现在顶部中间。
+
+         aria-live="polite" 是给读屏软件的信号：
+         “这块区域的内容会变，变了之后念出来，但别打断用户正在读的东西”。
+         少了这个属性，视障同学完全感知不到操作成功了——对他们来说，
+         点了“确认发布”和没点是一样的。
+         ================================================================== -->
+    <div class="toast-wrap" id="toastWrap" aria-live="polite"></div>
+
+    <!-- ==================================================================
+         九、悬浮发布按钮
+
+         固定在右下角，不管页面滚到哪里都在。
+         如果塞进导航栏，手机上那 5 个菜单项已经要靠横向滚动了，再加一个会更挤。
+         ================================================================== -->
+    <button type="button" class="fab" id="publishBtn">
+        <span class="fab-plus" aria-hidden="true">＋</span>
+        <span>发布闲置</span>
+    </button>
+
+    <!-- ==================================================================
+         九、发布商品弹窗
+
+         同样是原生 <dialog>，不再重复它的好处。
+         注意这里是个 <form>，由此带来两个后果：
+
+           1. 在任意输入框里按回车都会自动提交表单（不用另外写键盘事件）
+           2. 里面的 <button> 必须显式写 type="button"，
+              否则它默认就是 submit，点一下就把表单提交了
+         ================================================================== -->
+    <dialog class="publish-modal" id="publishModal">
+
+        <button type="button" class="modal-close" aria-label="关闭弹窗">×</button>
+
+        <!-- novalidate 是关掉浏览器自带的校验气泡，
+             改由 script.js 用我们自己写的规则和样式来提示。 -->
+        <form class="publish-form" id="publishForm" novalidate>
+
+            <h2 class="publish-title">发布闲置</h2>
+            <p class="publish-sub">填好下面的信息，30 秒就能挂上架</p>
+
+            <!-- 封面图标：目前还没有真实的图片上传，
+                 先让用户挑一个 emoji 当封面，和列表里的样式保持一致 -->
+            <div class="field">
+                <span class="field-label">选个图标当封面</span>
+                <div class="emoji-picker">
+                    <button type="button" class="emoji-opt is-active" aria-pressed="true">🏸</button>
+                    <button type="button" class="emoji-opt" aria-pressed="false">🚲</button>
+                    <button type="button" class="emoji-opt" aria-pressed="false">📿</button>
+                    <button type="button" class="emoji-opt" aria-pressed="false">💍</button>
+                    <button type="button" class="emoji-opt" aria-pressed="false">🍷</button>
+                    <button type="button" class="emoji-opt" aria-pressed="false">🍵</button>
+                    <button type="button" class="emoji-opt" aria-pressed="false">⌚</button>
+                    <button type="button" class="emoji-opt" aria-pressed="false">📱</button>
+                    <button type="button" class="emoji-opt" aria-pressed="false">📦</button>
+                </div>
+            </div>
+
+            <!-- 商品标题 -->
+            <div class="field">
+                <!-- for="pubTitle" 和下面 input 的 id 对应，
+                     这样点文字就能聚焦到输入框，读屏软件也能正确朗读 -->
+                <label class="field-label" for="pubTitle">商品标题 <span class="req">*</span></label>
+                <input id="pubTitle" type="text" class="field-input" maxlength="30"
+                       placeholder="例如：尤尼克斯 羽毛球拍 双拍套装">
+                <!-- 错误提示平时是隐藏的，只有外层 .field 被加上 has-error 才显示 -->
+                <p class="field-error">请填写商品标题</p>
+            </div>
+
+            <!-- 分类 + 成色：两列并排 -->
+            <div class="field-row">
+                <div class="field">
+                    <label class="field-label" for="pubCategory">分类</label>
+                    <select id="pubCategory" class="field-input">
+                        <option value="运动器材">🏸 运动器材</option>
+                        <option value="代步工具">🚲 代步工具</option>
+                        <option value="首饰配饰">📿 首饰配饰</option>
+                        <option value="酒水饮品">🍷 酒水饮品</option>
+                        <option value="茶叶干货">🍵 茶叶干货</option>
+                        <option value="食品小吃">🍜 食品小吃</option>
+                        <option value="生活百货">📦 生活百货</option>
+                    </select>
+                </div>
+                <div class="field">
+                    <label class="field-label" for="pubCondition">成色</label>
+                    <select id="pubCondition" class="field-input">
+                        <option>全新</option>
+                        <option selected>九成新</option>
+                        <option>八成新</option>
+                        <option>七成新</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- 售价 + 原价 -->
+            <div class="field-row">
+                <div class="field">
+                    <label class="field-label" for="pubPrice">售价 <span class="req">*</span></label>
+
+                    <!-- 货币符号和输入框拼成一个整体，
+                         这样 ¥ 不会因为输入框获得焦点而错位 -->
+                    <div class="input-affix">
+                        <span class="affix" aria-hidden="true">¥</span>
+                        <input id="pubPrice" type="number" min="0" step="1" class="field-input" placeholder="0">
+                    </div>
+                    <p class="field-error">请填写一个大于 0 的售价</p>
+                </div>
+                <div class="field">
+                    <label class="field-label" for="pubOrigin">原价（选填）</label>
+                    <div class="input-affix">
+                        <span class="affix" aria-hidden="true">¥</span>
+                        <input id="pubOrigin" type="number" min="0" step="1" class="field-input" placeholder="填了会显示划线价">
+                    </div>
+                </div>
+            </div>
+
+            <!-- 商品描述 -->
+            <div class="field">
+                <label class="field-label" for="pubDesc">商品描述 <span class="req">*</span></label>
+                <textarea id="pubDesc" class="field-input field-textarea" rows="3" maxlength="120"
+                          placeholder="说说成色、用了多久、带什么配件……"></textarea>
+                <p class="field-error">请简单描述一下这件商品</p>
+            </div>
+
+            <!-- 所在学院 -->
+            <div class="field">
+                <label class="field-label" for="pubCollege">所在学院</label>
+                <select id="pubCollege" class="field-input">
+                    <option>体育学院</option>
+                    <option>机械工程学院</option>
+                    <option>外国语学院</option>
+                    <option>设计学院</option>
+                    <option>管理学院</option>
+                    <option>农学院</option>
+                    <option>其他学院</option>
+                </select>
+            </div>
+
+            <div class="publish-actions">
+                <!-- data-close 只是个标记，方便 JS 找到这个按钮 -->
+                <button type="button" class="modal-btn modal-btn--ghost" data-close>取消</button>
+                <button type="submit" class="modal-btn modal-btn--primary">确认发布</button>
+            </div>
+
+        </form>
+    </dialog>
+
+    <!-- ==================================================================
+         十、私信弹窗（点商品详情里的“联系卖家”打开）
+
+         结构和另外几个弹窗一样是原生 <dialog>，
+         里面是一个极简聊天界面：上面是对话对象，中间是消息，下面是输入框。
+         ================================================================== -->
+    <dialog class="chat-modal" id="chatModal">
+
+        <div class="chat-head">
+            <!-- 头像就取名字的第一个字，不需要图片 -->
+            <div class="chat-avatar" id="chatAvatar" aria-hidden="true">卖</div>
+
+            <div class="chat-who">
+                <h2 class="chat-name" id="chatName">卖家</h2>
+                <p class="chat-sub" id="chatSub">校园集市私信</p>
+            </div>
+
+            <!-- 这里没用 .modal-close，因为那个是绝对定位到右上角的，
+                 在这个布局里会盖到头像上。改成让它规规矩矩当一个普通子项。 -->
+            <button type="button" class="chat-close" id="chatClose" aria-label="关闭私信">×</button>
+        </div>
+
+        <!-- role="log" 是给读屏软件的信号：
+             “这是一串会不断往下追加的消息流，有新消息就念出来”，
+             比单纯写一个 aria-live 更贴合聊天的语义。 -->
+        <ul class="chat-list" id="chatList" role="log" aria-label="聊天记录"></ul>
+
+        <!-- 快捷短语。内容由 chat.js 按场景填进来（商品 / 跑腿 / 失物 各不相同），
+             所以这里只留一个空容器。 -->
+        <div class="chat-quick" id="chatQuick"></div>
+
+        <form class="chat-form" id="chatForm">
+            <input type="text" class="chat-input" id="chatInput" autocomplete="off"
+                   placeholder="打个招呼吧，问问成色、能不能面交……" aria-label="输入消息">
+            <button type="submit" class="chat-send">发送</button>
+        </form>
+
+    </dialog>
+
+    <!-- 回到顶部。滚过一屏才出现，点一下平滑滚回去，逻辑在 common.js 里 -->
+    <button type="button" class="to-top to-top--high" id="toTop" aria-label="回到顶部">
+        <span aria-hidden="true">↑</span>
+    </button>
+
+</body>
+</html>

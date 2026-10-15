@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<!-- 声明文档类型为 HTML5，浏览器会以“标准模式”渲染页面 -->
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="校园集市二手交易区 —— 同学们发布的正版闲置好物">
+    <title>二手交易 - 校园集市</title>
+
+    <!-- 样式表只有一份，所有页面共用 -->
+    <link rel="stylesheet" href="style.css">
+
+    <!-- 浏览器标签页上的小图标。SVG 一个文件适配所有尺寸，缩放不糊 -->
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+
+    <!-- 手机浏览器地址栏的配色，跟着站点主题走。没有这句会是一截白条 -->
+    <meta name="theme-color" content="#FFE1EA">
+
+    <!-- 脚本：common.js 是所有页面都要的公共部分，
+         后面的才是这一页专用的。defer 保证它们按书写顺序执行。 -->
+    <script src="common.js" defer></script>
+    <script src="chat.js" defer></script>
+    <script src="goods.js" defer></script>
+</head>
+<body>
+
+<header class="navbar">
+        <!-- 用一个容器把内容限制在最大宽度内并水平居中，内容不会贴到屏幕两边 -->
+        <div class="nav-container">
+
+            <!-- Logo 区域：点击可以回到首页 -->
+            <a href="index.html" class="logo">
+                <span class="logo-icon">🛒</span>
+                <!-- 这个 span 里的文字会被 CSS 做成“粉紫渐变文字” -->
+                <span class="logo-text">校园集市</span>
+            </a>
+
+            <!-- <nav> 表示“导航”区域，<ul> 是无序列表，<li> 是列表项 -->
+            <nav class="nav-wrap">
+                <ul class="nav-menu">
+                    <!-- class="active" 用来标记“当前所在页面”，CSS 会给它加下划线。
+                         每个页面把自己的那一个改成 active 即可，
+                         这样用户一眼就知道自己在哪儿。 -->
+                    <li><a href="index.html">首页</a></li>
+                    <li><a href="goods.html" class="active">二手交易</a></li>
+                    <li><a href="errand.html">校园跑腿</a></li>
+                    <li><a href="lost.html">失物招领</a></li>
+                    <li><a href="about.html">关于我们</a></li>
+                </ul>
+            </nav>
+
+        </div>
+    </header>
+
+    <main>
+
+        <section class="page-hero">
+            <div class="page-hero-inner">
+                <nav class="breadcrumb" aria-label="当前位置">
+                    <a href="index.html">首页</a>
+                    <span class="breadcrumb-sep" aria-hidden="true">/</span>
+                    <span aria-current="page">二手交易</span>
+                </nav>
+                <h1 class="page-title">二手交易</h1>
+                <p class="page-desc">球拍、自行车、首饰、茶酒……同学们把闲置的好物低价转出来。全部校内当面交易，看得见摸得着再付款。</p>
+            </div>
+        </section>
+
+        <section class="page-main">
+
+            <!-- 列表页自带的搜索框。
+
+                 它是“筛选工具”，不是“全站入口”——
+                 首页 Hero 里那个搜索框负责把用户带过来，这个负责在 21 件商品里找特定的那一件。
+                 输入框的 class 故意用了和首页一样的 search-input，
+                 这样 goods.js 里“清空筛选”那句就能顺带把它也清掉，不用单独写。 -->
+            <div class="list-search">
+                <span class="list-search-icon" aria-hidden="true">🔍</span>
+                <input type="text" class="search-input" id="goodsSearch" autocomplete="off"
+                       placeholder="在商品里搜：球拍、项链、茶…" aria-label="搜索商品">
+            </div>
+
+            <!-- 分类筛选。chip 上的 data-category
+                 要和商品卡片上的 data-category 对得上，筛选才生效。 -->
+                        <div class="chip-row">
+                <button type="button" class="chip is-active" data-category="all" aria-pressed="true">全部</button>
+                <button type="button" class="chip" data-category="运动器材" aria-pressed="false">🏸 运动器材</button>
+                <button type="button" class="chip" data-category="代步工具" aria-pressed="false">🚲 代步工具</button>
+                <button type="button" class="chip" data-category="首饰配饰" aria-pressed="false">📿 首饰配饰</button>
+                <button type="button" class="chip" data-category="酒水饮品" aria-pressed="false">🍷 酒水饮品</button>
+                <button type="button" class="chip" data-category="茶叶干货" aria-pressed="false">🍵 茶叶干货</button>
+                <button type="button" class="chip" data-category="食品小吃" aria-pressed="false">🍜 食品小吃</button>
+                <button type="button" class="chip" data-category="生活百货" aria-pressed="false">📦 生活百货</button>
+            </div>
+
+            <!-- 排序 + 只看收藏（和首页同一套结构，goods.js 会自动接管） -->
+            <div class="goods-toolbar">
+                <span class="toolbar-label">排序</span>
+                <button type="button" class="sort-btn is-active" aria-pressed="true"  data-sort="time">最新发布</button>
+                <button type="button" class="sort-btn" aria-pressed="false" data-sort="price">价格最低</button>
+                <button type="button" class="sort-btn" aria-pressed="false" data-sort="hot">人气最高</button>
+
+                <span class="toolbar-divider" aria-hidden="true"></span>
+
+                <button type="button" class="fav-filter" id="favFilterBtn" aria-pressed="false">
+                    <span class="fav-filter-heart" aria-hidden="true">♡</span>
+                    <span>只看收藏</span>
+                    <span class="fav-count" id="favCount">0</span>
+                </button>
+            </div>
+
+            <p class="result-line">共 <strong id="resultCount">25</strong> 件商品</p>
+
+            <div class="filter-tip" id="filterTip" hidden>
+                <span id="filterTipText"></span>
+                <button type="button" class="filter-clear" id="filterClearBtn">清除筛选</button>
+            </div>
+
+            <div class="goods-grid">
+
+                <article class="goods-card"
+                         tabindex="0"
+                         aria-haspopup="dialog"
+                         data-id="demo-1"
+                         data-category="运动器材"
+                         data-time="3" data-price="180" data-hot="328"
+                         data-seller="五子棋"
+                         data-desc="大一买的，打了一个学期，拍面无磕碰，手柄胶刚换过新的。附送拍包和两个备用吸汗带。">
+                    <div class="goods-thumb">🏸</div>
+                    <span class="goods-tag">九成新</span>
+                    <button type="button" class="fav-btn" aria-label="收藏" aria-pressed="false">♡</button>
+                    <div class="goods-body">
+                        <h3 class="goods-name">尤尼克斯 羽毛球拍 双拍套装</h3>
+                        <p class="goods-meta">体育学院 · 3 分钟前</p>
+                        <div class="goods-foot">
+                            <span class="goods-price">¥180</span>
+                            <span class="goods-origin">¥560</span>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="goods-card"
+                         tabindex="0"
+                         aria-haspopup="dialog"
+                         data-id="demo-2"
+                         data-category="代步工具"
+                         data-time="15" data-price="420" data-hot="512"
+                         data-seller="皇子"
+                         data-desc="毕业了带不走，车况良好，刚换过刹车皮，送车锁和打气筒。只在校本部当面交易。">
+                    <div class="goods-thumb">🚲</div>
+                    <span class="goods-tag">八成新</span>
+                    <button type="button" class="fav-btn" aria-label="收藏" aria-pressed="false">♡</button>
+                    <div class="goods-body">
+                        <h3 class="goods-name">捷安特 山地自行车 26 寸</h3>
+                        <p class="goods-meta">机械工程学院 · 15 分钟前</p>
+                        <div class="goods-foot">
+                            <span class="goods-price">¥420</span>
+                            <span class="goods-origin">¥1280</span>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="goods-card"
+                         tabindex="0"
+                         aria-haspopup="dialog"
+                         data-id="demo-3"
+                         data-category="首饰配饰"
+                         data-time="60" data-price="68" data-hot="276"
+                         data-seller="傻尹尹"
+                         data-desc="朋友送的和自己风格不搭，只戴过两次就收起来了，没有氧化发黑，附原装小盒和擦拭布。">
+                    <div class="goods-thumb">📿</div>
+                    <span class="goods-tag">九成新</span>
+                    <button type="button" class="fav-btn" aria-label="收藏" aria-pressed="false">♡</button>
+                    <div class="goods-body">
+                        <h3 class="goods-name">925 银项链 锁骨链</h3>
+                        <p class="goods-meta">外国语学院 · 1 小时前</p>
+                        <div class="goods-foot">
+                            <span class="goods-price">¥68</span>
+                            <span class="goods-origin">¥199</span>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="goods-card"
+                         tabindex="0"
+                         aria-haspopup="dialog"
+                         data-id="demo-4"
+                         data-category="首饰配饰"
+                         data-time="120" data-price="45" data-hot="194"
+                         data-seller="小猪婷"
+                         data-desc="只戴过一两次，表面没有划痕，开口式可调节大小不挑手指。附赠绒布小袋。">
+                    <div class="goods-thumb">💍</div>
+                    <span class="goods-tag">九成新</span>
+                    <button type="button" class="fav-btn" aria-label="收藏" aria-pressed="false">♡</button>
+                    <div class="goods-body">
+                        <h3 class="goods-name">足银素圈戒指 开口可调</h3>
+                        <p class="goods-meta">设计学院 · 2 小时前</p>
+                        <div class="goods-foot">
+                            <span class="goods-price">¥45</span>
+                            <span class="goods-origin">¥158</span>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="goods-card"
+                         tabindex="0"
+                         aria-haspopup="dialog"
+                         data-id="demo-5"
+                         data-category="酒水饮品"
+                         data-time="180" data-price="128" data-hot="88"
+                         data-seller="时不与我"
+                         data-desc="家里寄来的，自己平时不喝酒，原箱未拆封，保质期内。礼盒完好，送人也体面。">
+                    <div class="goods-thumb">🍷</div>
+                    <span class="goods-tag goods-tag--new">全新</span>
+                    <button type="button" class="fav-btn" aria-label="收藏" aria-pressed="false">♡</button>
+                    <div class="goods-body">
+                        <h3 class="goods-name">干红葡萄酒 双支礼盒装</h3>
+                        <p class="goods-meta">管理学院 · 3 小时前</p>
+                        <div class="goods-foot">
+                            <span class="goods-price">¥128</span>
+                            <span class="goods-origin">¥398</span>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="goods-card"
+                         tabindex="0"
+                         aria-haspopup="dialog"
+                         data-id="demo-6"
+                         data-category="茶叶干货"
+                         data-time="300" data-price="96" data-hot="143"
+                         data-seller="张呆贾"
+                         data-desc="家里是茶农，今年的明前新茶，自留多了转一盒。铁罐密封包装，附手提袋，未开封。">
+                    <div class="goods-thumb">🍵</div>
+                    <span class="goods-tag goods-tag--new">全新</span>
+                    <button type="button" class="fav-btn" aria-label="收藏" aria-pressed="false">♡</button>
+                    <div class="goods-body">
+                        <h3 class="goods-name">明前龙井 特级礼盒 250g</h3>
+                        <p class="goods-meta">农学院 · 5 小时前</p>
+                        <div class="goods-foot">
+                            <span class="goods-price">¥96</span>
+                            <span class="goods-origin">¥320</span>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="goods-card"
+                         tabindex="0"
+                         aria-haspopup="dialog"
+                         data-id="demo-7"
+                         data-category="运动器材"
+                         data-time="8" data-price="65" data-hot="201"
+                         data-seller="谷老大"
+                         data-desc="买多了，整筒未拆封，AS-05 比赛级。可以拆成两筒分着出。">
+                    <div class="goods-thumb">🏸</div>
+                    <span class="goods-tag goods-tag--new">全新</span>
+                    <button type="button" class="fav-btn" aria-label="收藏" aria-pressed="false">♡</button>
+                    <div class="goods-body">
+                        <h3 class="goods-name">尤尼克斯 羽毛球 一筒 12 只</h3>
+                        <p class="goods-meta">体育学院 · 8 分钟前</p>
+                        <div class="goods-foot">
+                            <span class="goods-price">¥65</span>
+                            <span class="goods-origin">¥120</span>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="goods-card"
+                         tabindex="0"
+                         aria-haspopup="dialog"
+                         data-id="demo-8"
+                         data-category="代步工具"
+                         data-time="45" data-price="580" data-hot="367"
+                         data-seller="温温"
+                         data-desc="骑了一年上下课，电池健康，续航实测 20 公里左右。刚换过轮胎，送充电器和车锁。">
+                    <div class="goods-thumb">🛴</div>
+                    <span class="goods-tag">八成新</span>
+                    <button type="button" class="fav-btn" aria-label="收藏" aria-pressed="false">♡</button>
+                    <div class="goods-body">
+                        <h3 class="goods-name">电动滑板车 折叠款</h3>
+                        <p class="goods-meta">自动化学院 · 45 分钟前</p>
+                        <div class="goods-foot">
+                            <span class="goods-price">¥580</span>
+                            <span class="goods-origin">¥1599</span>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="goods-card"
+                         tabindex="0"
+                         aria-haspopup="dialog"
+                         data-id="demo-9"
+                         data-category="茶叶干货"
+                         data-time="95" data-price="158" data-hot="132"
+                         data-seller="礼拜天"
+                         data-desc="自家存的茶，2019 年的料，一直干仓存放。原包装未拆，附茶针一把。">
+                    <div class="goods-thumb">🫖</div>
+                    <span class="goods-tag goods-tag--new">全新</span>
+                    <button type="button" class="fav-btn" aria-label="收藏" aria-pressed="false">♡</button>
+                    <div class="goods-body">
+                        <h3 class="goods-name">云南普洱 熟茶饼 357g</h3>
+                        <p class="goods-meta">农学院 · 1 小时前</p>
+                        <div class="goods-foot">
+                            <span class="goods-price">¥158</span>
+                            <span class="goods-origin">¥460</span>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="goods-card"
+                         tabindex="0"
+                         aria-haspopup="dialog"
+                         data-id="demo-10"
+                         data-category="首饰配饰"
+                         data-time="150" data-price="52" data-hot="87"
+                         data-seller="雅琪张"
+                         data-desc="演出戴过一次，珍珠没有磨损，银针没有氧化。附赠一对备用耳堵。">
+                    <div class="goods-thumb">💎</div>
+                    <span class="goods-tag">九成新</span>
+                    <button type="button" class="fav-btn" aria-label="收藏" aria-pressed="false">♡</button>
+                    <div class="goods-body">
+                        <h3 class="goods-name">珍珠耳环 925 银针</h3>
+                        <p class="goods-meta">艺术学院 · 2 小时前</p>
+                        <div class="goods-foot">
+                            <span class="goods-price">¥52</span>
+                            <span class="goods-origin">¥168</span>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="goods-card"
+                         tabindex="0"
+                         aria-haspopup="dialog"
+                         data-id="demo-11"
+                         data-category="酒水饮品"
+                         data-time="220" data-price="88" data-hot="119"
+                         data-seller="茜茜"
+                         data-desc="朋友送的，度数不高适合小酌，两瓶一起出。未开封，保质期还有一年半。">
+                    <div class="goods-thumb">🍶</div>
+                    <span class="goods-tag goods-tag--new">全新</span>
+                    <button type="button" class="fav-btn" aria-label="收藏" aria-pressed="false">♡</button>
+                    <div class="goods-body">
+                        <h3 class="goods-name">青梅酒 双瓶装 500ml</h3>
+                        <p class="goods-meta">外国语学院 · 3 小时前</p>
+                        <div class="goods-foot">
+                            <span class="goods-price">¥88</span>
+                            <span class="goods-origin">¥256</span>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="goods-card"
+                         tabindex="0"
+                         aria-haspopup="dialog"
+                         data-id="demo-12"
+                         data-category="生活百货"
+                         data-time="400" data-price="260" data-hot="156"
+                         data-seller="嫣紫赵"
+                         data-desc="实习买的，就穿过两次。内胆可拆，防水涂层完好，无破损。L 码，180 左右合身。">
+                    <div class="goods-thumb">🧥</div>
+                    <span class="goods-tag">九成新</span>
+                    <button type="button" class="fav-btn" aria-label="收藏" aria-pressed="false">♡</button>
+                    <div class="goods-body">
+                        <h3 class="goods-name">户外冲锋衣 三合一 男款 L</h3>
+                        <p class="goods-meta">地理学院 · 6 小时前</p>
+                        <div class="goods-foot">
+                            <span class="goods-price">¥260</span>
+                            <span class="goods-origin">¥899</span>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="goods-card"
+                         tabindex="0"
+                         aria-haspopup="dialog"
+                         data-id="demo-13"
+                         data-category="运动器材"
+                         data-time="25" data-price="220" data-hot="245"
+                         data-seller="姚欣怡"
+                         data-desc="打了一年多，拍框没有磕碰，网线是上个月新穿的，磅数还在。送两个避震器和一筒球。">
+                    <div class="goods-thumb">🎾</div>
+                    <span class="goods-tag">九成新</span>
+                    <button type="button" class="fav-btn" aria-label="收藏" aria-pressed="false">♡</button>
+                    <div class="goods-body">
+                        <h3 class="goods-name">Wilson Blade 98 网球拍</h3>
+                        <p class="goods-meta">体育学院 · 25 分钟前</p>
+                        <div class="goods-foot">
+                            <span class="goods-price">¥220</span>
+                            <span class="goods-origin">¥680</span>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="goods-card"
+                         tabindex="0"
+                         aria-haspopup="dialog"
+                         data-id="demo-14"
+                         data-category="运动器材"
+                         data-time="70" data-price="150" data-hot="178"
+                         data-seller="小猪婷"
+                         data-desc="玩了半年，板面有正常使用痕迹不影响滑行，轴承刚上过油很顺。送护具一套。">
+                    <div class="goods-thumb">🛹</div>
+                    <span class="goods-tag">八成新</span>
+                    <button type="button" class="fav-btn" aria-label="收藏" aria-pressed="false">♡</button>
+                    <div class="goods-body">
+                        <h3 class="goods-name">双翘滑板 专业板</h3>
+                        <p class="goods-meta">艺术学院 · 1 小时前</p>
+                        <div class="goods-foot">
+                            <span class="goods-price">¥150</span>
+                            <span class="goods-origin">¥420</span>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="goods-card"
+                         tabindex="0"
+                         aria-haspopup="dialog"
+                         data-id="demo-15"
+                         data-category="首饰配饰"
+                         data-time="110" data-price="280" data-hot="302"
+                         data-seller="谷老大"
+                         data-desc="朋友送的，只喷过几次，还剩九成以上。原装礼盒和说明书都在，专柜正品。">
+                    <div class="goods-thumb">🧴</div>
+                    <span class="goods-tag">九成新</span>
+                    <button type="button" class="fav-btn" aria-label="收藏" aria-pressed="false">♡</button>
+                    <div class="goods-body">
+                        <h3 class="goods-name">祖玛珑 蓝风铃 香水 30ml</h3>
+                        <p class="goods-meta">外国语学院 · 2 小时前</p>
+                        <div class="goods-foot">
+                            <span class="goods-price">¥280</span>
+                            <span class="goods-origin">¥780</span>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="goods-card"
+                         tabindex="0"
+                         aria-haspopup="dialog"
+                         data-id="demo-16"
+                         data-category="茶叶干货"
+                         data-time="165" data-price="78" data-hot="96"
+                         data-seller="礼拜天"
+                         data-desc="家里亲戚养的蜂，纯天然没有添加剂，两罐全新未开封，保质期到明年。">
+                    <div class="goods-thumb">🍯</div>
+                    <span class="goods-tag goods-tag--new">全新</span>
+                    <button type="button" class="fav-btn" aria-label="收藏" aria-pressed="false">♡</button>
+                    <div class="goods-body">
+                        <h3 class="goods-name">土蜂蜜 500g 两罐装</h3>
+                        <p class="goods-meta">农学院 · 3 小时前</p>
+                        <div class="goods-foot">
+                            <span class="goods-price">¥78</span>
+                            <span class="goods-origin">¥160</span>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="goods-card"
+                         tabindex="0"
+                         aria-haspopup="dialog"
+                         data-id="demo-17"
+                         data-category="生活百货"
+                         data-time="260" data-price="320" data-hot="264"
+                         data-seller="时不与我"
+                         data-desc="买来用了几次就吃灰了，外观没有划痕，送两盒相纸（共 20 张）和一个收纳包。">
+                    <div class="goods-thumb">📷</div>
+                    <span class="goods-tag">九成新</span>
+                    <button type="button" class="fav-btn" aria-label="收藏" aria-pressed="false">♡</button>
+                    <div class="goods-body">
+                        <h3 class="goods-name">富士 拍立得 mini 11</h3>
+                        <p class="goods-meta">新闻学院 · 4 小时前</p>
+                        <div class="goods-foot">
+                            <span class="goods-price">¥320</span>
+                            <span class="goods-origin">¥599</span>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="goods-card"
+                         tabindex="0"
+                         aria-haspopup="dialog"
+                         data-id="demo-18"
+                         data-category="生活百货"
+                         data-time="340" data-price="380" data-hot="331"
+                         data-seller="小轩怡"
+                         data-desc="用了两年，网面没有塌陷，气压杆正常。要搬宿舍所以出掉，可以拆开搬走。">
+                    <div class="goods-thumb">🪑</div>
+                    <span class="goods-tag">八成新</span>
+                    <button type="button" class="fav-btn" aria-label="收藏" aria-pressed="false">♡</button>
+                    <div class="goods-body">
+                        <h3 class="goods-name">人体工学椅 带腰托</h3>
+                        <p class="goods-meta">计算机学院 · 6 小时前</p>
+                        <div class="goods-foot">
+                            <span class="goods-price">¥380</span>
+                            <span class="goods-origin">¥1099</span>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="goods-card"
+                         tabindex="0"
+                         aria-haspopup="dialog"
+                         data-id="demo-19"
+                         data-category="运动器材"
+                         data-time="480" data-price="60" data-hot="74"
+                         data-seller="温温"
+                         data-desc="社团统一发的，只穿过几次，洗过两次没有褪色。170 左右合身，送白色腰带。">
+                    <div class="goods-thumb">🥋</div>
+                    <span class="goods-tag">九成新</span>
+                    <button type="button" class="fav-btn" aria-label="收藏" aria-pressed="false">♡</button>
+                    <div class="goods-body">
+                        <h3 class="goods-name">跆拳道道服 170cm</h3>
+                        <p class="goods-meta">体育学院 · 8 小时前</p>
+                        <div class="goods-foot">
+                            <span class="goods-price">¥60</span>
+                            <span class="goods-origin">¥260</span>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="goods-card"
+                         tabindex="0"
+                         aria-haspopup="dialog"
+                         data-id="demo-20"
+                         data-category="酒水饮品"
+                         data-time="600" data-price="108" data-hot="158"
+                         data-seller="张呆贾"
+                         data-desc="生日聚会剩下的，整箱未拆封，保质期内。口味是 IPA，介意苦味的慎拍。">
+                    <div class="goods-thumb">🍺</div>
+                    <span class="goods-tag goods-tag--new">全新</span>
+                    <button type="button" class="fav-btn" aria-label="收藏" aria-pressed="false">♡</button>
+                    <div class="goods-body">
+                        <h3 class="goods-name">精酿啤酒 一箱 12 罐</h3>
+                        <p class="goods-meta">机械工程学院 · 10 小时前</p>
+                        <div class="goods-foot">
+                            <span class="goods-price">¥108</span>
+                            <span class="goods-origin">¥228</span>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="goods-card"
+                         tabindex="0"
+                         aria-haspopup="dialog"
+                         data-id="demo-21"
+                         data-category="食品小吃"
+                         data-time="50" data-price="18" data-hot="213"
+                         data-seller="寒冰"
+                         data-desc="家里开店剩下的，整箱没拆封，食用级的，做冷饮、冰镇饮料都行。天热正好用得上，可以送到宿舍楼下。">
+                    <div class="goods-thumb">🧊</div>
+                    <span class="goods-tag goods-tag--new">全新</span>
+                    <button type="button" class="fav-btn" aria-label="收藏" aria-pressed="false">♡</button>
+                    <div class="goods-body">
+                        <h3 class="goods-name">食用冰块 一箱 20 袋</h3>
+                        <p class="goods-meta">管理学院 · 50 分钟前</p>
+                        <div class="goods-foot">
+                            <span class="goods-price">¥18</span>
+                            <span class="goods-origin">¥39</span>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="goods-card"
+                         tabindex="0"
+                         aria-haspopup="dialog"
+                         data-id="demo-22"
+                         data-category="生活百货"
+                         data-time="35" data-price="28" data-hot="187"
+                         data-seller="沛沛"
+                         data-desc="家里狗子长得太快，买的时候挑小了一号，吊牌还没拆。颈围 35–50cm 可调，附送一个牵引绳扣。">
+                    <div class="goods-thumb">🐕</div>
+                    <span class="goods-tag goods-tag--new">全新</span>
+                    <button type="button" class="fav-btn" aria-label="收藏" aria-pressed="false">♡</button>
+                    <div class="goods-body">
+                        <h3 class="goods-name">宠物项圈 中型犬 可调节</h3>
+                        <p class="goods-meta">农学院 · 35 分钟前</p>
+                        <div class="goods-foot">
+                            <span class="goods-price">¥28</span>
+                            <span class="goods-origin">¥89</span>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="goods-card"
+                         tabindex="0"
+                         aria-haspopup="dialog"
+                         data-id="demo-23"
+                         data-category="食品小吃"
+                         data-time="20" data-price="45" data-hot="168"
+                         data-seller="峰"
+                         data-desc="面馆开学做活动送的，两张各面值 30，我自己用不完。店就在东门对面，凭券能抵任意套餐。">
+                    <div class="goods-thumb">🍜</div>
+                    <span class="goods-tag goods-tag--new">全新</span>
+                    <button type="button" class="fav-btn" aria-label="收藏" aria-pressed="false">♡</button>
+                    <div class="goods-body">
+                        <h3 class="goods-name">李记饸饹面 代金券 2 张</h3>
+                        <p class="goods-meta">管理学院 · 20 分钟前</p>
+                        <div class="goods-foot">
+                            <span class="goods-price">¥45</span>
+                            <span class="goods-origin">¥60</span>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="goods-card"
+                         tabindex="0"
+                         aria-haspopup="dialog"
+                         data-id="demo-24"
+                         data-category="食品小吃"
+                         data-time="130" data-price="15" data-hot="105"
+                         data-seller="丹丹"
+                         data-desc="羊汤底那家，天冷了吃一碗很舒服。券是之前充卡送的，一直没去吃，转给爱吃面的同学。">
+                    <div class="goods-thumb">🍜</div>
+                    <span class="goods-tag goods-tag--new">全新</span>
+                    <button type="button" class="fav-btn" aria-label="收藏" aria-pressed="false">♡</button>
+                    <div class="goods-body">
+                        <h3 class="goods-name">李记饸饹面 单人套餐券</h3>
+                        <p class="goods-meta">外国语学院 · 2 小时前</p>
+                        <div class="goods-foot">
+                            <span class="goods-price">¥15</span>
+                            <span class="goods-origin">¥26</span>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="goods-card"
+                         tabindex="0"
+                         aria-haspopup="dialog"
+                         data-id="demo-25"
+                         data-category="酒水饮品"
+                         data-time="55" data-price="168" data-hot="142"
+                         data-seller="萌晶"
+                         data-desc="家里长辈送的，我不喝白酒一直放着。原箱未拆，防伪码完好。适合送人或者聚餐用，诚心要可以小刀。">
+                    <div class="goods-thumb">🥃</div>
+                    <span class="goods-tag goods-tag--new">全新</span>
+                    <button type="button" class="fav-btn" aria-label="收藏" aria-pressed="false">♡</button>
+                    <div class="goods-body">
+                        <h3 class="goods-name">白酒 42 度 双瓶礼盒装</h3>
+                        <p class="goods-meta">艺术学院 · 55 分钟前</p>
+                        <div class="goods-foot">
+                            <span class="goods-price">¥168</span>
+                            <span class="goods-origin">¥398</span>
+                        </div>
+                    </div>
+                </article>
+
+            </div>
+
+            <div class="empty-state" id="emptyState" hidden>
+                <div class="empty-icon">🔍</div>
+                <p class="empty-title">没有找到相关商品</p>
+                <p class="empty-desc">换个分类或关键词试试，或者先看看全部好物</p>
+                <button type="button" class="empty-btn" id="emptyResetBtn">查看全部商品</button>
+            </div>
+
+        </section>
+
+    </main>
+
+    <button type="button" class="fab" id="publishBtn">
+        <span class="fab-plus" aria-hidden="true">＋</span>
+        <span>发布闲置</span>
+    </button>
+<div class="toast-wrap" id="toastWrap" aria-live="polite"></div>
+
+<dialog class="goods-modal" id="goodsModal">
+
+        <!-- 关闭按钮。里面只有一个 × 符号，
+             aria-label 是用来告诉读屏软件“这个按钮是干嘛的”。 -->
+        <button type="button" class="modal-close" aria-label="关闭弹窗">×</button>
+
+        <!-- 图片区：和卡片一样，先放 emoji 占位 -->
+        <div class="modal-thumb" aria-hidden="true">🏸</div>
+
+        <div class="modal-body">
+
+            <!-- 这里复用卡片的 .goods-tag 样式，
+                 但在弹窗里它不再是“浮在图片上”的，所以样式表里有针对性的覆盖 -->
+            <span class="goods-tag">九成新</span>
+
+            <h2 class="modal-title">商品名称</h2>
+            <p class="modal-meta">学院 · 时间 · 卖家</p>
+
+            <div class="modal-price">
+                <span class="modal-price-now">¥0</span>
+                <span class="modal-price-origin">¥0</span>
+            </div>
+
+            <p class="modal-desc">商品描述</p>
+
+            <div class="modal-actions">
+
+                <!-- data-role 是专门留给 JS 用的“钩子”。
+                     为什么不用 class 当钩子？
+                     因为 class 是给 CSS 做样式的，以后调样式换掉类名，
+                     JS 就跟着找不到元素了。data-* 干这件事，两边互不干扰。 -->
+
+                <!-- 别人的商品：收藏 + 联系卖家 -->
+                <button type="button" class="modal-btn modal-btn--ghost"   data-role="collect">♡ 收藏</button>
+                <button type="button" class="modal-btn modal-btn--primary" data-role="contact">联系卖家</button>
+
+                <!-- 自己发布的商品：编辑 + 撤回。
+                     hidden 是 HTML 自带的隐藏开关，JS 只要切换这个属性就行。
+                     （前提是 .modal-btn 没设置 display，否则会把 hidden 覆盖掉——我们确实没设。） -->
+                <button type="button" class="modal-btn modal-btn--ghost"  data-role="edit"   hidden>编辑</button>
+                <button type="button" class="modal-btn modal-btn--danger" data-role="delete" hidden>撤回发布</button>
+
+            </div>
+
+        </div>
+    </dialog>
+
+<dialog class="publish-modal" id="publishModal">
+
+        <button type="button" class="modal-close" aria-label="关闭弹窗">×</button>
+
+        <!-- novalidate 是关掉浏览器自带的校验气泡，
+             改由 script.js 用我们自己写的规则和样式来提示。 -->
+        <form class="publish-form" id="publishForm" novalidate>
+
+            <h2 class="publish-title">发布闲置</h2>
+            <p class="publish-sub">填好下面的信息，30 秒就能挂上架</p>
+
+            <!-- 封面图标：目前还没有真实的图片上传，
+                 先让用户挑一个 emoji 当封面，和列表里的样式保持一致 -->
+            <div class="field">
+                <span class="field-label">选个图标当封面</span>
+                <div class="emoji-picker">
+                    <button type="button" class="emoji-opt is-active" aria-pressed="true">🏸</button>
+                    <button type="button" class="emoji-opt" aria-pressed="false">🚲</button>
+                    <button type="button" class="emoji-opt" aria-pressed="false">📿</button>
+                    <button type="button" class="emoji-opt" aria-pressed="false">💍</button>
+                    <button type="button" class="emoji-opt" aria-pressed="false">🍷</button>
+                    <button type="button" class="emoji-opt" aria-pressed="false">🍵</button>
+                    <button type="button" class="emoji-opt" aria-pressed="false">⌚</button>
+                    <button type="button" class="emoji-opt" aria-pressed="false">📱</button>
+                    <button type="button" class="emoji-opt" aria-pressed="false">📦</button>
+                </div>
+            </div>
+
+            <!-- 商品标题 -->
+            <div class="field">
+                <!-- for="pubTitle" 和下面 input 的 id 对应，
+                     这样点文字就能聚焦到输入框，读屏软件也能正确朗读 -->
+                <label class="field-label" for="pubTitle">商品标题 <span class="req">*</span></label>
+                <input id="pubTitle" type="text" class="field-input" maxlength="30"
+                       placeholder="例如：尤尼克斯 羽毛球拍 双拍套装">
+                <!-- 错误提示平时是隐藏的，只有外层 .field 被加上 has-error 才显示 -->
+                <p class="field-error">请填写商品标题</p>
+            </div>
+
+            <!-- 分类 + 成色：两列并排 -->
+            <div class="field-row">
+                <div class="field">
+                    <label class="field-label" for="pubCategory">分类</label>
+                    <select id="pubCategory" class="field-input">
+                        <option value="运动器材">🏸 运动器材</option>
+                        <option value="代步工具">🚲 代步工具</option>
+                        <option value="首饰配饰">📿 首饰配饰</option>
+                        <option value="酒水饮品">🍷 酒水饮品</option>
+                        <option value="茶叶干货">🍵 茶叶干货</option>
+                        <option value="食品小吃">🍜 食品小吃</option>
+                        <option value="生活百货">📦 生活百货</option>
+                    </select>
+                </div>
+                <div class="field">
+                    <label class="field-label" for="pubCondition">成色</label>
+                    <select id="pubCondition" class="field-input">
+                        <option>全新</option>
+                        <option selected>九成新</option>
+                        <option>八成新</option>
+                        <option>七成新</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- 售价 + 原价 -->
+            <div class="field-row">
+                <div class="field">
+                    <label class="field-label" for="pubPrice">售价 <span class="req">*</span></label>
+
+                    <!-- 货币符号和输入框拼成一个整体，
+                         这样 ¥ 不会因为输入框获得焦点而错位 -->
+                    <div class="input-affix">
+                        <span class="affix" aria-hidden="true">¥</span>
+                        <input id="pubPrice" type="number" min="0" step="1" class="field-input" placeholder="0">
+                    </div>
+                    <p class="field-error">请填写一个大于 0 的售价</p>
+                </div>
+                <div class="field">
+                    <label class="field-label" for="pubOrigin">原价（选填）</label>
+                    <div class="input-affix">
+                        <span class="affix" aria-hidden="true">¥</span>
+                        <input id="pubOrigin" type="number" min="0" step="1" class="field-input" placeholder="填了会显示划线价">
+                    </div>
+                </div>
+            </div>
+
+            <!-- 商品描述 -->
+            <div class="field">
+                <label class="field-label" for="pubDesc">商品描述 <span class="req">*</span></label>
+                <textarea id="pubDesc" class="field-input field-textarea" rows="3" maxlength="120"
+                          placeholder="说说成色、用了多久、带什么配件……"></textarea>
+                <p class="field-error">请简单描述一下这件商品</p>
+            </div>
+
+            <!-- 所在学院 -->
+            <div class="field">
+                <label class="field-label" for="pubCollege">所在学院</label>
+                <select id="pubCollege" class="field-input">
+                    <option>体育学院</option>
+                    <option>机械工程学院</option>
+                    <option>外国语学院</option>
+                    <option>设计学院</option>
+                    <option>管理学院</option>
+                    <option>农学院</option>
+                    <option>其他学院</option>
+                </select>
+            </div>
+
+            <div class="publish-actions">
+                <!-- data-close 只是个标记，方便 JS 找到这个按钮 -->
+                <button type="button" class="modal-btn modal-btn--ghost" data-close>取消</button>
+                <button type="submit" class="modal-btn modal-btn--primary">确认发布</button>
+            </div>
+
+        </form>
+    </dialog>
+
+<footer class="footer">
+        <div class="footer-container">
+
+            <!-- 页脚文字链接：可以复用导航菜单的思路，也是一组 <ul> + <li> -->
+            <ul class="footer-links">
+                <li><a href="about.html">关于我们</a></li>
+                <li><a href="goods.html">二手交易</a></li>
+                <li><a href="errand.html">校园跑腿</a></li>
+                <li><a href="lost.html">失物招领</a></li>
+            </ul>
+
+            <!-- 版权信息：&copy; 是 HTML 实体，显示出来就是 © 符号 -->
+            <p class="footer-copyright">
+                &copy; 2026 校园集市 Campus Market · 为同学们用心打造
+            </p>
+
+        </div>
+    </footer>
+
+    <!-- ==================================================================
+         私信弹窗（点商品详情里的“联系卖家”打开）
+
+         结构和另外几个弹窗一样是原生 <dialog>，
+         里面是一个极简聊天界面：上面是对话对象，中间是消息，下面是输入框。
+         ================================================================== -->
+    <dialog class="chat-modal" id="chatModal">
+
+        <div class="chat-head">
+            <!-- 头像就取名字的第一个字，不需要图片 -->
+            <div class="chat-avatar" id="chatAvatar" aria-hidden="true">卖</div>
+
+            <div class="chat-who">
+                <h2 class="chat-name" id="chatName">卖家</h2>
+                <p class="chat-sub" id="chatSub">校园集市私信</p>
+            </div>
+
+            <button type="button" class="chat-close" id="chatClose" aria-label="关闭私信">×</button>
+        </div>
+
+        <!-- role="log" 是给读屏软件的信号：
+             “这是一串会不断往下追加的消息流，有新消息就念出来”。 -->
+        <ul class="chat-list" id="chatList" role="log" aria-label="聊天记录"></ul>
+
+        <!-- 快捷短语。内容由 chat.js 按场景填进来（商品 / 跑腿 / 失物 各不相同），
+             所以这里只留一个空容器。 -->
+        <div class="chat-quick" id="chatQuick"></div>
+
+        <form class="chat-form" id="chatForm">
+            <input type="text" class="chat-input" id="chatInput" autocomplete="off"
+                   placeholder="打个招呼吧，问问成色、能不能面交……" aria-label="输入消息">
+            <button type="submit" class="chat-send">发送</button>
+        </form>
+
+    </dialog>
+
+    <!-- 回到顶部。滚过一屏才出现，点一下平滑滚回去，逻辑在 common.js 里 -->
+    <button type="button" class="to-top to-top--high" id="toTop" aria-label="回到顶部">
+        <span aria-hidden="true">↑</span>
+    </button>
+
+</body>
+</html>

@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<!-- 声明文档类型为 HTML5，浏览器会以“标准模式”渲染页面 -->
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="校园集市校园跑腿 —— 取快递、带饭、代买，同学之间互相帮忙">
+    <title>校园跑腿 - 校园集市</title>
+
+    <!-- 样式表只有一份，所有页面共用 -->
+    <link rel="stylesheet" href="style.css">
+
+    <!-- 浏览器标签页上的小图标。SVG 一个文件适配所有尺寸，缩放不糊 -->
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+
+    <!-- 手机浏览器地址栏的配色，跟着站点主题走。没有这句会是一截白条 -->
+    <meta name="theme-color" content="#FFE1EA">
+
+    <!-- 脚本：common.js 是所有页面都要的公共部分，
+         后面的才是这一页专用的。defer 保证它们按书写顺序执行。 -->
+    <script src="common.js" defer></script>
+    <script src="chat.js" defer></script>
+    <script src="errand.js" defer></script>
+</head>
+<body>
+
+<header class="navbar">
+        <!-- 用一个容器把内容限制在最大宽度内并水平居中，内容不会贴到屏幕两边 -->
+        <div class="nav-container">
+
+            <!-- Logo 区域：点击可以回到首页 -->
+            <a href="index.html" class="logo">
+                <span class="logo-icon">🛒</span>
+                <!-- 这个 span 里的文字会被 CSS 做成“粉紫渐变文字” -->
+                <span class="logo-text">校园集市</span>
+            </a>
+
+            <!-- <nav> 表示“导航”区域，<ul> 是无序列表，<li> 是列表项 -->
+            <nav class="nav-wrap">
+                <ul class="nav-menu">
+                    <!-- class="active" 用来标记“当前所在页面”，CSS 会给它加下划线。
+                         每个页面把自己的那一个改成 active 即可，
+                         这样用户一眼就知道自己在哪儿。 -->
+                    <li><a href="index.html">首页</a></li>
+                    <li><a href="goods.html">二手交易</a></li>
+                    <li><a href="errand.html" class="active">校园跑腿</a></li>
+                    <li><a href="lost.html">失物招领</a></li>
+                    <li><a href="about.html">关于我们</a></li>
+                </ul>
+            </nav>
+
+        </div>
+    </header>
+
+    <main>
+
+        <section class="page-hero">
+            <div class="page-hero-inner">
+                <nav class="breadcrumb" aria-label="当前位置">
+                    <a href="index.html">首页</a>
+                    <span class="breadcrumb-sep" aria-hidden="true">/</span>
+                    <span aria-current="page">校园跑腿</span>
+                </nav>
+                <h1 class="page-title">校园跑腿</h1>
+                <p class="page-desc">取快递、带饭、代买文具……发布任务或顺手接单。同一栋楼的同学互帮一把，比叫外卖还快。</p>
+            </div>
+        </section>
+
+        <section class="page-main">
+
+            <div class="chip-row">
+                <button type="button" class="chip is-active" data-type="all" aria-pressed="true">全部任务</button>
+                <button type="button" class="chip" data-type="取快递" aria-pressed="false">取快递</button>
+                <button type="button" class="chip" data-type="带饭" aria-pressed="false">带饭</button>
+                <button type="button" class="chip" data-type="代买" aria-pressed="false">代买</button>
+            </div>
+
+            <p class="result-line">共 <strong id="resultCount">7</strong> 个任务</p>
+
+            <ul class="list-stack" id="taskList">
+
+                <li class="list-card" data-type="代买" data-id="task-7">
+                    <div class="list-icon" aria-hidden="true">💊</div>
+
+                    <div class="list-main">
+                        <div class="list-head">
+                            <span class="list-badge">待接单</span>
+                            <h3 class="list-title">帮忙去校医院取药</h3>
+                        </div>
+                        <p class="list-desc">单子已经开好了，带学生证去窗口取就行，不用排队太久</p>
+                        <div class="list-meta">
+                            <span>📍 校医院 → 9 号楼 407</span>
+                            <span>⏰ 今天 18:00 前</span>
+                            <span>👤 寒冰</span>
+                        </div>
+                    </div>
+
+                    <div class="list-side">
+                        <span class="list-price">¥6</span>
+                        <button type="button" class="btn btn--primary btn--sm take-btn">我要接单</button>
+                    </div>
+                </li>
+
+                <li class="list-card" data-type="取快递" data-id="task-1">
+                    <div class="list-icon" aria-hidden="true">📦</div>
+
+                    <div class="list-main">
+                        <div class="list-head">
+                            <span class="list-badge">待接单</span>
+                            <h3 class="list-title">菜鸟驿站取两个包裹</h3>
+                        </div>
+                        <p class="list-desc">包裹不大，一个人拿得动</p>
+                        <div class="list-meta">
+                            <span>📍 菜鸟驿站 → 5 号楼 312</span>
+                            <span>⏰ 30 分钟内</span>
+                            <span>👤 五子棋</span>
+                        </div>
+                    </div>
+
+                    <div class="list-side">
+                        <span class="list-price">¥5</span>
+                        <button type="button" class="btn btn--primary btn--sm take-btn">我要接单</button>
+                    </div>
+                </li>
+
+                <li class="list-card" data-type="带饭" data-id="task-2">
+                    <div class="list-icon" aria-hidden="true">🍜</div>
+
+                    <div class="list-main">
+                        <div class="list-head">
+                            <span class="list-badge">待接单</span>
+                            <h3 class="list-title">二食堂麻辣香锅 打包</h3>
+                        </div>
+                        <p class="list-desc">微辣，不要香菜，饭多点</p>
+                        <div class="list-meta">
+                            <span>📍 二食堂 → 图书馆 3 楼</span>
+                            <span>⏰ 40 分钟内</span>
+                            <span>👤 小猪婷</span>
+                        </div>
+                    </div>
+
+                    <div class="list-side">
+                        <span class="list-price">¥6</span>
+                        <button type="button" class="btn btn--primary btn--sm take-btn">我要接单</button>
+                    </div>
+                </li>
+
+                <li class="list-card" data-type="代买" data-id="task-3">
+                    <div class="list-icon" aria-hidden="true">🖨️</div>
+
+                    <div class="list-main">
+                        <div class="list-head">
+                            <span class="list-badge">待接单</span>
+                            <h3 class="list-title">打印店打印 30 页双面</h3>
+                        </div>
+                        <p class="list-desc">黑白，装订成一本</p>
+                        <div class="list-meta">
+                            <span>📍 校门口打印店 → 8 号楼 201</span>
+                            <span>⏰ 1 小时内</span>
+                            <span>👤 张呆贾</span>
+                        </div>
+                    </div>
+
+                    <div class="list-side">
+                        <span class="list-price">¥4</span>
+                        <button type="button" class="btn btn--primary btn--sm take-btn">我要接单</button>
+                    </div>
+                </li>
+
+                <li class="list-card" data-type="带饭" data-id="task-4">
+                    <div class="list-icon" aria-hidden="true">☕</div>
+
+                    <div class="list-main">
+                        <div class="list-head">
+                            <span class="list-badge list-badge--busy">进行中</span>
+                            <h3 class="list-title">奶茶两杯 少冰少糖</h3>
+                        </div>
+                        <p class="list-desc">一杯四季春，一杯芝士葡萄</p>
+                        <div class="list-meta">
+                            <span>📍 北门奶茶店 → 东区 6 栋</span>
+                            <span>⏰ 30 分钟内</span>
+                            <span>👤 温温</span>
+                        </div>
+                    </div>
+
+                    <div class="list-side">
+                        <span class="list-price">¥5</span>
+                        <button type="button" class="btn btn--primary btn--sm take-btn" disabled>已被接单</button>
+                    </div>
+                </li>
+
+                <li class="list-card" data-type="取快递" data-id="task-5">
+                    <div class="list-icon" aria-hidden="true">📦</div>
+
+                    <div class="list-main">
+                        <div class="list-head">
+                            <span class="list-badge">待接单</span>
+                            <h3 class="list-title">快递站取一个大件</h3>
+                        </div>
+                        <p class="list-desc">是台显示器，比较重，需要力气</p>
+                        <div class="list-meta">
+                            <span>📍 快递站 → 3 号楼 118</span>
+                            <span>⏰ 今天 18:00 前</span>
+                            <span>👤 谷老大</span>
+                        </div>
+                    </div>
+
+                    <div class="list-side">
+                        <span class="list-price">¥8</span>
+                        <button type="button" class="btn btn--primary btn--sm take-btn">我要接单</button>
+                    </div>
+                </li>
+
+                <li class="list-card" data-type="代买" data-id="task-6">
+                    <div class="list-icon" aria-hidden="true">🛒</div>
+
+                    <div class="list-main">
+                        <div class="list-head">
+                            <span class="list-badge">待接单</span>
+                            <h3 class="list-title">超市带一批日用品</h3>
+                        </div>
+                        <p class="list-desc">清单私聊，主要是纸巾和洗漱用品</p>
+                        <div class="list-meta">
+                            <span>📍 校内超市 → 西区 2 栋</span>
+                            <span>⏰ 2 小时内</span>
+                            <span>👤 礼拜天</span>
+                        </div>
+                    </div>
+
+                    <div class="list-side">
+                        <span class="list-price">¥6</span>
+                        <button type="button" class="btn btn--primary btn--sm take-btn">我要接单</button>
+                    </div>
+                </li>
+
+            </ul>
+
+            <div class="empty-state" id="emptyState" hidden>
+                <div class="empty-icon">📭</div>
+                <p class="empty-title">这个类型暂时没有任务</p>
+                <p class="empty-desc">换个类型看看，或者自己发布一个</p>
+                <button type="button" class="empty-btn" id="emptyResetBtn">查看全部任务</button>
+            </div>
+
+        </section>
+
+    </main>
+
+    <button type="button" class="fab" id="publishBtn">
+        <span class="fab-plus" aria-hidden="true">＋</span>
+        <span>发布任务</span>
+    </button>
+<div class="toast-wrap" id="toastWrap" aria-live="polite"></div>
+
+    <!-- ==================================================================
+         发布任务弹窗
+
+         跑腿任务的字段和商品完全不同（没有成色、没有原价，
+         换成取送地点和期望时间），所以这个表单是单独写的，
+         只沿用 .publish-form 那套样式外壳。
+         ================================================================== -->
+    <dialog class="publish-modal" id="publishModal">
+
+        <button type="button" class="modal-close" aria-label="关闭弹窗">×</button>
+
+        <form class="publish-form" id="publishForm" novalidate>
+
+            <h2 class="publish-title">发布跑腿任务</h2>
+            <p class="publish-sub">说清楚要做什么、送到哪，很快有人接</p>
+
+            <div class="field-row">
+                <div class="field">
+                    <label class="field-label" for="pubType">任务类型</label>
+                    <select id="pubType" class="field-input">
+                        <option>取快递</option>
+                        <option>带饭</option>
+                        <option>代买</option>
+                        <option>其他</option>
+                    </select>
+                </div>
+                <div class="field">
+                    <label class="field-label" for="pubPay">报酬 <span class="req">*</span></label>
+                    <div class="input-affix">
+                        <span class="affix" aria-hidden="true">¥</span>
+                        <input id="pubPay" type="number" min="0" step="1" class="field-input" placeholder="0">
+                    </div>
+                    <p class="field-error">请填写一个大于 0 的报酬</p>
+                </div>
+            </div>
+
+            <div class="field">
+                <label class="field-label" for="pubTitle">任务标题 <span class="req">*</span></label>
+                <input id="pubTitle" type="text" class="field-input" maxlength="30"
+                       placeholder="例如：菜鸟驿站取两个包裹">
+                <p class="field-error">请填写任务标题</p>
+            </div>
+
+            <div class="field">
+                <label class="field-label" for="pubPlace">取送地点 <span class="req">*</span></label>
+                <input id="pubPlace" type="text" class="field-input" maxlength="40"
+                       placeholder="例如：菜鸟驿站 → 5 号楼 312">
+                <p class="field-error">请填写取送地点</p>
+            </div>
+
+            <div class="field">
+                <label class="field-label" for="pubTime">期望送达时间</label>
+                <select id="pubTime" class="field-input">
+                    <option>30 分钟内</option>
+                    <option>1 小时内</option>
+                    <option>2 小时内</option>
+                    <option>今天之内</option>
+                </select>
+            </div>
+
+            <div class="field">
+                <label class="field-label" for="pubDesc">详细说明</label>
+                <textarea id="pubDesc" class="field-input field-textarea" rows="3" maxlength="120"
+                          placeholder="有什么要注意的？比如包裹大小、口味要求……"></textarea>
+            </div>
+
+            <div class="publish-actions">
+                <button type="button" class="modal-btn modal-btn--ghost" data-close>取消</button>
+                <button type="submit" class="modal-btn modal-btn--primary">确认发布</button>
+            </div>
+
+        </form>
+    </dialog>
+
+<footer class="footer">
+        <div class="footer-container">
+
+            <!-- 页脚文字链接：可以复用导航菜单的思路，也是一组 <ul> + <li> -->
+            <ul class="footer-links">
+                <li><a href="about.html">关于我们</a></li>
+                <li><a href="goods.html">二手交易</a></li>
+                <li><a href="errand.html">校园跑腿</a></li>
+                <li><a href="lost.html">失物招领</a></li>
+            </ul>
+
+            <!-- 版权信息：&copy; 是 HTML 实体，显示出来就是 © 符号 -->
+            <p class="footer-copyright">
+                &copy; 2026 校园集市 Campus Market · 为同学们用心打造
+            </p>
+
+        </div>
+    </footer>
+
+    <!-- ==================================================================
+         私信弹窗（点“我要接单 / 我要认领 / 我有线索”打开）
+         和商品页用的是同一个组件 —— 结构、样式、脚本完全共用。
+         ================================================================== -->
+<dialog class="chat-modal" id="chatModal">
+
+        <div class="chat-head">
+            <!-- 头像就取名字的第一个字，不需要图片 -->
+            <div class="chat-avatar" id="chatAvatar" aria-hidden="true">卖</div>
+
+            <div class="chat-who">
+                <h2 class="chat-name" id="chatName">卖家</h2>
+                <p class="chat-sub" id="chatSub">校园集市私信</p>
+            </div>
+
+            <button type="button" class="chat-close" id="chatClose" aria-label="关闭私信">×</button>
+        </div>
+
+        <!-- role="log" 是给读屏软件的信号：
+             “这是一串会不断往下追加的消息流，有新消息就念出来”。 -->
+        <ul class="chat-list" id="chatList" role="log" aria-label="聊天记录"></ul>
+
+        <!-- 快捷短语。内容由 chat.js 按场景填进来（商品 / 跑腿 / 失物 各不相同），
+             所以这里只留一个空容器。 -->
+        <div class="chat-quick" id="chatQuick"></div>
+
+        <form class="chat-form" id="chatForm">
+            <input type="text" class="chat-input" id="chatInput" autocomplete="off"
+                   placeholder="打个招呼吧，问问成色、能不能面交……" aria-label="输入消息">
+            <button type="submit" class="chat-send">发送</button>
+        </form>
+
+    </dialog>
+
+    <!-- 回到顶部。滚过一屏才出现，点一下平滑滚回去，逻辑在 common.js 里 -->
+    <button type="button" class="to-top to-top--high" id="toTop" aria-label="回到顶部">
+        <span aria-hidden="true">↑</span>
+    </button>
+
+</body>
+</html>

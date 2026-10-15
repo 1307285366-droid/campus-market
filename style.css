@@ -1,0 +1,3530 @@
+/* ============================================================
+   校园集市 · 首页样式表
+   主题：樱花粉（#FFB7C5 系）
+
+   阅读顺序（也是写 CSS 的推荐顺序，从大到小、从全局到局部）：
+   1. 变量：色阶 → 语义别名 → 尺寸 → 阴影
+   2. 全局重置 + 撑满屏幕的布局骨架
+   3. 全局细节（选中色、滚动条、焦点框）
+   4. 通用工具类
+   5. 导航栏
+   6. 欢迎横幅（Hero）
+   7. 搜索栏
+   8. 功能卡片
+   9. 数据统计条
+  10. 热门好物
+  11. 使用流程
+  12. 浮层（弹窗 / 提示条 / 悬浮按钮）
+  13. 页脚
+  14. 入场动画
+  15. 响应式适配（Media Queries）
+  16. 内页通用组件
+  17. 无障碍：尊重“减少动态效果”的系统设置
+   ============================================================ */
+
+
+/* ============================================================
+   1. 变量（CSS 自定义属性）
+
+   ★ 变量写法和用法：
+       定义： --sakura-400: #FFB7C5;         （必须以两个减号开头）
+       使用： color: var(--sakura-400);      （用 var() 函数取出来）
+     变量定义在 :root 上，:root 就代表 <html> 元素，
+     所以整个页面里任何元素都能读到它。
+
+   ★ 变量故意分成两层：
+
+     第一层【色阶】——客观的颜色名字（sakura-400 就是第 4 档樱花粉），
+                      不带用途含义，只管“这是个什么颜色”。
+     第二层【语义别名】——描述“这个颜色用来干什么”（背景？边框？文字？）。
+
+     分层的好处：写样式时统一用第二层，比如 color: var(--color-text)。
+     哪天想把所有正文从棕灰改成灰紫，只改 --color-text 一行；
+     而想整体换主题，把第一层色阶整段替换掉就行，第二层一个字都不用动。
+   ============================================================ */
+:root {
+
+    /* ========== 第一层：色阶 ========== */
+
+    /* ---------- 樱花粉色阶 ----------
+       色相定在 348° 附近，比常见的“玫红”（338°）偏红一点点，
+       这就是樱花粉和洋红粉最本质的区别——不是深浅，是色相。
+       整页靠 50 ~ 300 这几档最浅的撑起，600 以上只做小面积点缀。 */
+    --sakura-50:  #FFF9FB;    /* 几乎看不出粉的米白 —— 整页大背景 */
+    --sakura-100: #FFF0F4;    /* 极淡粉 —— 区块浅底、Hero 渐变起点 */
+    --sakura-200: #FFE1EA;    /* 淡粉 —— 边框、分隔线 */
+    --sakura-300: #FFCBD9;    /* 浅粉 —— 装饰、图标底、选中背景 */
+    --sakura-400: #FFB7C5;    /* ★ 经典樱花粉（日本传统色「桜色」）—— 装饰光斑 */
+    --sakura-500: #F09BB4;    /* 过渡档 —— 滚动条悬停等 */
+    --sakura-600: #E07D99;    /* 玫粉 —— 渐变起点、填充色块 */
+    --sakura-700: #C2607E;    /* 深樱粉 —— 白底上的文字（高亮、链接、Logo） */
+
+    /* ---------- 淡紫色阶：和樱花粉搭配做渐变，营造梦幻感 ---------- */
+    --lav-100: #F5F0FC;
+    --lav-200: #EDE6FA;       /* Hero 渐变终点 */
+    --lav-400: #D9C9F0;
+    --lav-500: #C4A8E8;
+    --lav-700: #9B79C9;       /* 渐变终点 / 深紫文字 */
+
+    /* ---------- 中性色（都带一点暖调，和粉主题更协调） ---------- */
+    --neutral-0:   #FFFFFF;  /* 纯白：卡片表面 */
+    --neutral-900: #3F3238;  /* 深棕灰：正文文字，比纯黑柔和 */
+    --neutral-500: #7E6A74;  /* 暖灰：次要文字（描述、版权、导航未选中项） */
+
+    /* ========== 第二层：语义别名 ========== */
+
+    /* ---- 背景与表面 ---- */
+    --color-bg:        var(--sakura-50);    /* 整页背景 */
+    --color-surface:   var(--neutral-0);    /* 卡片、页脚的表面色 */
+    --color-border:    var(--sakura-200);   /* 描边：淡淡的樱花粉 */
+    --color-border-strong: var(--sakura-300);
+
+    /* ---- 文字 ---- */
+    --color-text:      var(--neutral-900);
+    --color-text-soft: var(--neutral-500);   /* 描述、版权等次要信息 */
+
+    /* ---- 主色 ----
+       小字和链接统一用 700 这一档（#C2607E），因为它在白底上的
+       对比度约 4.0:1，能看清；600 那档只有 2.8:1，只适合大面积填充。 */
+    --color-primary:        var(--sakura-700);
+    --color-primary-strong: #A84E6B;         /* 悬停时再深一档 */
+
+    /* ---- 状态色 ----
+       表单校验出错时用。特意选了一个比主题粉更红、更沉的色，
+       否则在满屏粉色的衬托下，“错误”看起来会像“强调”。 */
+    --color-danger: #CC3A52;
+
+    /* ---- 渐变（整段渐变也存成变量，换肤时一步到位） ---- */
+    /* Hero 背景：淡粉 → 淡粉 → 淡紫。三个色标，中间那档让过渡更柔和 */
+    --gradient-hero:  linear-gradient(135deg, #FFF0F4 0%, #FDE6F0 45%, #EDE6FA 100%);
+    /* 品牌渐变：深樱粉 → 深紫。用在 Logo 文字、按钮、卡片高光条上 */
+    --gradient-brand: linear-gradient(135deg, var(--sakura-700) 0%, var(--lav-700) 100%);
+    /* 图标底色：更浅的版本，避免图标抢戏 */
+    --gradient-icon:  linear-gradient(135deg, var(--sakura-200) 0%, var(--lav-200) 100%);
+
+    /* ---- 尺寸 ---- */
+    --nav-height: 64px;        /* 导航栏高度，body 和导航栏都要用，抽成变量才不会对不上 */
+    --radius-sm: 10px;
+    --radius: 18px;            /* 卡片圆角 */
+    --radius-lg: 28px;
+    --radius-pill: 999px;      /* 胶囊形状：给一个足够大的值就是圆头 */
+
+    /* ---- 阴影 ----
+       注意：这里的 rgba 用的是樱花粉的 RGB(224, 125, 153)，只调透明度。
+       如果阴影用默认的黑色，在淡粉页面上会显脏、发灰，
+       换成同色系阴影，整个页面才会“透”出粉调。 */
+    --shadow-sm:   0 2px 12px rgba(224, 125, 153, 0.10);
+    --shadow-md:   0 14px 34px rgba(224, 125, 153, 0.18);   /* 卡片悬停 */
+    --shadow-lg:   0 18px 44px rgba(224, 125, 153, 0.22);   /* 搜索框聚焦 */
+    --shadow-glow: 0 8px 20px rgba(194, 96, 126, 0.30);     /* 搜索按钮的粉色光晕 */
+
+    /* ---- 动画时长（统一管理，保证全站节奏一致） ---- */
+    --ease: cubic-bezier(0.22, 0.61, 0.36, 1);   /* 比 ease 更顺滑的缓动曲线 */
+    --dur: 0.3s;
+}
+
+
+/* ============================================================
+   2. 全局重置 + 布局骨架
+   ============================================================ */
+
+/* 浏览器对元素有默认的 margin / padding，先统一清掉，避免各处对不齐。 */
+* {
+    margin: 0;
+    padding: 0;
+
+    /* box-sizing: border-box 表示：设置 width 时，padding 和 border 算在宽度之内。
+       这是现在前端开发的标准做法，能让宽度计算直观很多。 */
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;   /* 点击锚点链接时平滑滚动 */
+
+    /* Firefox 的滚动条写法（标准属性，Chrome 走后面的 ::-webkit- 写法） */
+    scrollbar-width: thin;
+    scrollbar-color: var(--sakura-300) var(--color-bg);
+}
+
+body {
+    /* 字体栈：优先用系统自带的中文字体，从前往后找，找到哪个用哪个 */
+    font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei",
+                 "Helvetica Neue", Arial, sans-serif;
+
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    line-height: 1.65;        /* 行高：1.65 倍字号，中文阅读更舒服 */
+
+    /* 字体抗锯齿：让文字在 macOS 上更细腻（精细感的小加分项） */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+
+    /* ---------- 让页脚始终贴在页面底部（Sticky Footer） ----------
+       思路：把 body 变成“竖向排列的弹性盒子”，
+             再让中间的 <main> 自动占满所有剩余空间（flex: 1），
+             剩余空间被吃掉后，页脚自然被挤到最底部。
+
+       注意：不能用 position: fixed 把页脚钉在窗口底部，
+             那样页面内容变长时，页脚会一直浮在文字上面挡住内容。
+
+       100dvh 里的 dvh 是“动态视口高度”，比传统的 100vh 更准：
+       手机浏览器滚动时地址栏会收起 / 展开，100vh 会导致多出一截滚动条，
+       100dvh 会跟着实际可视高度变化。先写 100vh 是给老浏览器兜底，
+       不支持 dvh 的浏览器会自动忽略第二行。 */
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+
+    /* 关键一步：导航栏是 fixed（脱离文档流、浮在上面）的，
+       所以给 body 加一个等于导航栏高度的上内边距，
+       否则页面最上面的内容会被导航栏盖住。 */
+    padding-top: var(--nav-height);
+}
+
+/* 让主内容区“吃掉”所有剩余高度，把页脚顶到底部 */
+main {
+    flex: 1;
+}
+
+/* 链接默认是蓝色带下划线，这里统一去掉下划线并继承父元素颜色 */
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+/* 去掉列表前面的小圆点 */
+ul {
+    list-style: none;
+}
+
+/* ---------- 把 hidden 属性的语义恢复成“彻底隐藏” ----------
+
+   HTML 的 hidden 属性本意就是“别显示这个元素”。
+   但它的 display: none 来自浏览器的默认样式表，优先级是最低的一档 ——
+   只要作者样式里给同一个元素写了一句 display: flex，
+   就能把它盖掉，元素照样显示出来。
+
+   我们的 .filter-tip（display: flex）正好会踩到这个坑，
+   所以在这里显式补一条，让 hidden 说了算，一劳永逸。
+
+   （这也是为什么 .modal-btn 那些按钮一直没出问题：
+     它们没设置 display，就不会和 hidden 打架。） */
+[hidden] {
+    display: none !important;
+}
+
+/* 表单控件默认不继承父元素的字体！
+   这是新手最常踩的坑之一：页面上其他地方都是雅黑 / 苹方，
+   唯独输入框和按钮变成了系统默认的宋体或 Times。
+   所以必须显式写一句 font: inherit 或 font-family: inherit。 */
+input,
+button,
+select,
+textarea {
+    /* 用 font: inherit 一行把字体、字号、行高、字重全部继承过来。
+       ★ 这里原先漏了 select 和 textarea ——
+         结果是发布弹窗里的“商品描述”变成了等宽字体（浏览器给 textarea 的默认值），
+         几个下拉框变成了 Arial，和满页中文格格不入。
+         所有表单控件都要写进来，漏一个就有一个会掉队。 */
+    font: inherit;
+}
+
+
+/* ============================================================
+   3. 全局细节（这些是最容易被忽略、但最影响“精致度”的地方）
+   ============================================================ */
+
+/* 用鼠标拖选文字时的底色。默认是浏览器蓝，和粉主题很违和 */
+::selection {
+    background-color: var(--sakura-300);
+    color: var(--sakura-700);
+}
+
+/* 自定义滚动条（Chrome / Edge / Safari 生效） */
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background-color: var(--color-bg);            /* 轨道：跟页面背景一致 */
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: var(--sakura-300);          /* 滑块：浅樱花粉 */
+    border-radius: var(--radius-pill);
+    /* 加一圈和轨道同色的边框，视觉上把滑块“变细”，更秀气 */
+    border: 2px solid var(--color-bg);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background-color: var(--sakura-500);
+}
+
+/* 键盘 Tab 键聚焦时的外框。
+   为什么要用 :focus-visible 而不是 :focus？
+   因为 :focus 对“鼠标点击”也会生效，点一下按钮就冒出一个框很难看；
+   :focus-visible 只在“键盘操作”时才显示，既美观又不牺牲无障碍。 */
+:focus-visible {
+    outline: 2px solid var(--sakura-400);
+    outline-offset: 3px;
+    border-radius: var(--radius-sm);
+}
+
+
+/* ============================================================
+   4. 通用工具类
+   ============================================================ */
+
+/* 区块标题（如“核心功能”） */
+.section-title {
+    text-align: center;
+    font-size: 30px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    margin-bottom: 12px;
+    color: var(--color-text);
+}
+
+/* 标题里被 <span> 包住的部分用主色高亮 */
+.section-title span {
+    color: var(--color-primary);
+
+    /* 必须改成 inline-block 才行：
+       <span> 默认是行内元素（inline），而“绝对定位的参照物”和
+       “百分比宽度”这两个特性，行内元素支持得都不好。
+       inline-block 既保留了“不换行”的特性，又具备完整的盒模型。 */
+    display: inline-block;
+    position: relative;      /* 让下面的 ::after 以它为参照物来定位 */
+}
+
+/* 在高亮文字正下方画一条同宽的粉色短线（纯装饰） */
+.section-title span::after {
+    content: "";             /* 伪元素必须写 content，哪怕是空字符串 */
+    position: absolute;      /* 相对上面的 span 定位（因为它设了 relative） */
+    left: 0;
+    bottom: -4px;            /* 往下挪 4px，正好落在文字下方不压住笔画 */
+    width: 100%;             /* 这里的 100% = span 自己的宽度，所以线条和文字一样长 */
+    height: 4px;
+    background-color: var(--sakura-300);
+    border-radius: var(--radius-pill);
+}
+
+/* 标题下方的说明文字，让标题区更有层次 */
+.section-subtitle {
+    text-align: center;
+    font-size: 15px;
+    color: var(--color-text-soft);
+    margin-bottom: 48px;
+}
+
+/* ---------- 只给读屏软件看的文字 ----------
+
+   有些文字对视力正常的用户是多余的（比如列表上方那个“商品列表”小标题），
+   但对读屏用户很重要：它撑起了标题层级，让用户能靠“按标题跳转”快速移动。
+
+   ★ 这里不能用 display: none 或 visibility: hidden ——
+     那一并会把内容从无障碍树里删掉，读屏软件根本读不到，等于没写。
+     也不能用 text-indent: -9999px 那种老写法，页面会出现多余的可滚动区域。
+
+   下面这套「缩到 1px 再裁掉」是现在的标准做法：
+   元素仍然存在、仍然能被念出来，只是视觉上被压成了一个点。 */
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border: 0;
+}
+
+
+/* ============================================================
+   5. 顶部导航栏
+   ============================================================ */
+.navbar {
+    /* position: fixed 让导航栏固定在视口顶部，页面滚动时它不会动 */
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;                 /* left + right 同时为 0，相当于宽度 100% */
+
+    height: var(--nav-height);
+
+    /* 不用纯白，而是半透明白 + 毛玻璃模糊：
+       页面内容从导航栏下方滚过时，会被糊成一层柔和的色块，
+       比纯色背景更有通透感，是现代 UI 很常用的一招。 */
+    background-color: rgba(255, 255, 255, 0.78);
+    -webkit-backdrop-filter: blur(14px) saturate(180%);
+    backdrop-filter: blur(14px) saturate(180%);
+
+    /* 用一条极淡的粉线做分隔，比一整圈阴影更轻、更精致 */
+    border-bottom: 1px solid var(--color-border);
+
+    /* z-index 控制层叠顺序：数值越大越靠上。
+       设为 1000 确保导航栏永远盖在其他内容上面。 */
+    z-index: 1000;
+}
+
+/* 内容容器：限制最大宽度并居中，大屏幕上内容不会拉得太宽 */
+.nav-container {
+    max-width: 1200px;
+    height: 100%;             /* 继承导航栏高度，方便用 flex 做垂直居中 */
+    margin: 0 auto;           /* 左右 auto = 水平居中 */
+    padding: 0 24px;          /* 小屏幕上左右各留 24px 空隙 */
+
+    /* Flex 布局：一行排列，两端对齐（Logo 在左，菜单在右） */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;      /* 垂直居中 */
+}
+
+/* 包住 <ul> 的容器，作用是允许它在窄屏下被压缩（详见第 15 节） */
+.nav-wrap {
+    min-width: 0;
+}
+
+/* ---------- Logo ---------- */
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 9px;                 /* 图标和文字之间留 9px 间距 */
+    font-size: 20px;
+    font-weight: 700;
+
+    /* flex 布局的子元素默认会被压缩（flex-shrink: 1）。
+       窄屏下菜单很长时，Logo 会被挤扁，所以明确禁止它收缩。 */
+    flex-shrink: 0;
+}
+
+.logo-icon {
+    font-size: 23px;
+    /* 图标本身也给一点粉色光晕，和渐变文字呼应 */
+    filter: drop-shadow(0 2px 6px rgba(224, 125, 153, 0.35));
+}
+
+/* ---------- 渐变文字 ----------
+   原理：把元素自身的文字设成透明，然后让背景色从文字的形状里“透”出来
+   （background-clip: text 就是“把背景裁剪成文字的形状”）。
+   于是文字就有了渐变效果，比纯色更有质感。 */
+.logo-text {
+    /* 兜底：万一浏览器不支持 background-clip: text，
+       文字会显示成这个纯色，而不是变成一片空白 */
+    color: var(--color-primary);
+    background: var(--gradient-brand);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;   /* 让文字本身透明，露出下面的渐变 */
+}
+
+/* ---------- 导航菜单 ---------- */
+.nav-menu {
+    display: flex;            /* 让列表项横向排列（默认是竖排的） */
+    align-items: center;
+    gap: 32px;                /* 每个菜单项之间间隔 32px */
+}
+
+.nav-menu a {
+    position: relative;
+    font-size: 15px;
+    color: var(--color-text-soft);
+    padding: 6px 0;
+
+    transition: color var(--dur) var(--ease);
+}
+
+/* 鼠标悬停时变主色 */
+.nav-menu a:hover {
+    color: var(--color-primary);
+}
+
+/* 当前页面的菜单项：加粗 + 主色 */
+.nav-menu a.active {
+    color: var(--color-primary);
+    font-weight: 600;
+}
+
+/* 用伪元素 ::after 画一条下划线。
+   初始宽度为 0（看不见），悬停时宽度变为 100%，就形成了“从左向右展开”的动画。 */
+.nav-menu a::after {
+    content: "";              /* 伪元素必须写 content，哪怕是空字符串 */
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 0;
+    height: 2px;
+    background: var(--gradient-brand);
+    border-radius: var(--radius-pill);
+    transition: width var(--dur) var(--ease);
+}
+
+.nav-menu a:hover::after,
+.nav-menu a.active::after {
+    width: 100%;
+}
+
+
+/* ============================================================
+   6. 欢迎横幅（Hero 区域）
+   ============================================================ */
+.hero {
+    /* 淡粉 → 淡粉 → 淡紫的柔光渐变，135deg 表示从左上方流向右下方 */
+    background: var(--gradient-hero);
+
+    text-align: center;       /* 文字水平居中 */
+    padding: 92px 24px 96px;
+
+    /* position: relative 是为了给里面的柔光斑（absolute）当参照物；
+       overflow: hidden 保证柔光斑超出边界的部分被裁掉，不会撑出横向滚动条。 */
+    position: relative;
+    overflow: hidden;
+
+    /* 底部两个大圆角，让横幅和下面的米白背景之间过渡得更柔和 */
+    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+}
+
+/* ---------- 装饰柔光斑 ----------
+   两个大圆圈 + 高斯模糊，模拟“柔光灯”的效果，
+   让原本平坦的渐变底多出一层光影层次，这是“梦幻感”的主要来源。 */
+.hero-blob {
+    position: absolute;
+    border-radius: 50%;
+
+    /* filter: blur() 是这里的关键，把实心圆糊成一片雾气 */
+    filter: blur(60px);
+    opacity: 0.7;
+
+    /* 重要：装饰元素不能拦截鼠标事件，
+       否则它会挡住下面搜索框的点击。 */
+    pointer-events: none;
+}
+
+/* 左上角的樱花粉色光斑 —— 用最经典的那一档 #FFB7C5 */
+.hero-blob--sakura {
+    width: 380px;
+    height: 380px;
+    top: -140px;
+    left: -90px;
+    /* 用 radial-gradient 让边缘自然淡出，再配合模糊，光斑就没有硬边 */
+    background: radial-gradient(circle, var(--sakura-400) 0%, rgba(255, 183, 197, 0) 70%);
+}
+
+/* 右下角的淡紫光斑 */
+.hero-blob--lilac {
+    width: 340px;
+    height: 340px;
+    bottom: -160px;
+    right: -70px;
+    background: radial-gradient(circle, var(--lav-400) 0%, rgba(217, 201, 240, 0) 70%);
+}
+
+/* 内容层要压在光斑上面，所以给它一个更高的层级。
+   注意：absolute 定位元素（光斑）默认会盖住普通文档流的内容，
+   所以这里必须显式提升 z-index。 */
+.hero-content {
+    position: relative;
+    z-index: 1;
+    max-width: 720px;         /* 限制文字宽度，避免大屏上一行太长不好读 */
+    margin: 0 auto;
+}
+
+/* ---------- 小徽章 ---------- */
+.hero-badge {
+    display: inline-block;
+    padding: 7px 18px;
+    margin-bottom: 24px;
+
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--color-primary);
+
+    /* 半透明白底 + 毛玻璃，像一块小小的磨砂玻璃片贴在渐变上 */
+    background-color: rgba(255, 255, 255, 0.72);
+    border: 1px solid rgba(255, 255, 255, 0.9);
+    border-radius: var(--radius-pill);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+    box-shadow: 0 2px 10px rgba(224, 125, 153, 0.10);
+}
+
+/* ---------- 主标题 ----------
+   浅色底上放白色文字会看不清，所以这里改用深樱粉 → 深紫的渐变文字，
+   既有质感，对比度也够。 */
+.hero-title {
+    font-size: 52px;
+    font-weight: 800;
+    letter-spacing: 3px;
+    line-height: 1.25;
+    margin-bottom: 18px;
+
+    color: var(--sakura-700);            /* 兜底纯色 */
+    background: linear-gradient(135deg, #C2607E 0%, #9B79C9 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* ---------- 副标题 ---------- */
+.hero-subtitle {
+    font-size: 17px;
+    color: #8B6E7C;           /* 带粉调的暖灰，比纯灰更融进背景 */
+    letter-spacing: 0.5px;
+    margin-bottom: 34px;
+}
+
+
+/* ============================================================
+   7. 搜索栏
+   这是首屏的核心交互区，所以做得比普通卡片更“实”一点：
+   白底更不透明、阴影更大、聚焦时还会亮起来。
+   ============================================================ */
+.search-card {
+    max-width: 580px;
+    margin: 0 auto;
+    text-align: left;         /* 覆盖 .hero 上的居中，输入框里的文字要左对齐 */
+
+    /* 半透明白 + 毛玻璃，让它像是浮在渐变背景上面 */
+    background-color: rgba(255, 255, 255, 0.9);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+
+    border: 1px solid rgba(255, 255, 255, 0.95);
+    border-radius: 20px;
+
+    /* 这一块是整个页面的视觉中心，所以给它最重的一层阴影 */
+    box-shadow: 0 16px 40px rgba(224, 125, 153, 0.18);
+    overflow: hidden;         /* 让内部的子元素不会超出圆角 */
+
+    transition: box-shadow var(--dur) var(--ease),
+                border-color var(--dur) var(--ease);
+}
+
+/* :focus-within 的意思是“当它内部任意一个元素获得焦点时”。
+   用户点进输入框的一瞬间，整个卡片会亮起来——
+   这种“整体响应”比只给输入框描个边要精致得多。 */
+.search-card:focus-within {
+    border-color: var(--sakura-300);
+    box-shadow: var(--shadow-lg);
+}
+
+/* ---------- 类型切换标签 ---------- */
+.search-tabs {
+    display: flex;
+    gap: 4px;
+    padding: 8px 10px 0;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.search-tab {
+    position: relative;
+    flex: 1;                  /* 三个标签平分整行宽度 */
+    padding: 11px 6px;
+
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--color-text-soft);
+
+    /* 按钮默认自带灰底和边框，这里全部去掉，只留文字 */
+    background: none;
+    border: none;
+    cursor: pointer;          /* 鼠标移上去变成小手，提示“这是可以点的” */
+
+    transition: color var(--dur) var(--ease);
+}
+
+.search-tab:hover {
+    color: var(--color-primary);
+}
+
+/* 当前选中的标签 */
+.search-tab.is-active {
+    color: var(--color-primary);
+    font-weight: 600;
+}
+
+/* 选中标签下方的指示条：和导航菜单用的是同一套“宽度 0 → 100%”的手法 */
+.search-tab::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: -1px;             /* 正好压在那条 1px 的分隔线上 */
+    width: 0;
+    height: 2px;
+    background: var(--gradient-brand);
+    border-radius: var(--radius-pill);
+    transform: translateX(-50%);   /* 向左挪一半自身宽度，实现居中 */
+    transition: width var(--dur) var(--ease);
+}
+
+.search-tab.is-active::after {
+    width: 56%;               /* 不铺满，留出两侧空间，更含蓄 */
+}
+
+/* ---------- 输入行 ---------- */
+.search-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 12px 12px 18px;
+}
+
+.search-icon {
+    font-size: 16px;
+    opacity: 0.6;             /* 图标不要比文字还抢眼 */
+    flex-shrink: 0;
+}
+
+.search-input {
+    flex: 1;                  /* 占满图标和按钮之间的所有空间 */
+
+    /* min-width: 0 是 flex 布局的一个必备补丁：
+       子元素默认的 min-width 是 auto，也就是“不能比自己的内容更窄”。
+       不加这句，输入框内容一长就会把按钮顶出容器。 */
+    min-width: 0;
+
+    padding: 8px 0;
+    border: none;
+    background: transparent;
+    font-size: 15px;
+    color: var(--color-text);
+}
+
+/* 输入框自己的黑色轮廓去掉——外层卡片的 :focus-within 已经给了反馈 */
+.search-input:focus {
+    outline: none;
+}
+
+/* ::placeholder 用来单独设置“提示文字”的颜色 */
+.search-input::placeholder {
+    color: #B9A6AE;           /* 比正常文字浅，明确区分“这是提示不是内容” */
+}
+
+.search-submit {
+    flex-shrink: 0;           /* 按钮不参与压缩，永远保持完整 */
+    padding: 11px 26px;
+
+    font-size: 15px;
+    font-weight: 600;
+    color: #FFFFFF;
+
+    background: var(--gradient-brand);
+    border: none;
+    border-radius: var(--radius-pill);
+    cursor: pointer;
+    box-shadow: var(--shadow-glow);
+
+    transition: transform var(--dur) var(--ease),
+                box-shadow var(--dur) var(--ease),
+                filter var(--dur) var(--ease);
+}
+
+.search-submit:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 26px rgba(194, 96, 126, 0.38);
+    filter: brightness(1.06);   /* 整体提亮 6%，模拟“发光变强” */
+}
+
+/* 按下时收回去一点，给出“被按到”的物理反馈 */
+.search-submit:active {
+    transform: translateY(0) scale(0.97);
+}
+
+
+/* ============================================================
+   8. 核心功能卡片
+   ============================================================ */
+.features {
+    max-width: 1200px;
+    margin: 0 auto;
+    /* 只留上内边距，下方留白交给下一节（热门好物）的 padding-top 统一管理，
+       否则两个区块的上下留白会叠加成双份，间距大得离谱。 */
+    padding: 84px 24px 0;
+}
+
+/* ---------- 网格布局（Grid） ---------- */
+.card-grid {
+    display: grid;
+
+    /* repeat(auto-fit, minmax(280px, 1fr)) 的含义：
+       - auto-fit：根据容器可用宽度，自动决定一行放几列
+       - minmax(280px, 1fr)：每列最窄 280px，最宽平分剩余空间
+       结果：宽屏一行 3 列，窄屏自动减少列数。
+
+       注意：这条规则在手机上可能排出 2 列，
+       所以我们会在第 15 节的媒体查询里强制改成单列。 */
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+
+    gap: 28px;                /* 卡片之间的间距 */
+}
+
+/* ---------- 单张卡片 ---------- */
+.card {
+    position: relative;       /* 给下面 ::before 的高光条当参照物 */
+    overflow: hidden;         /* 防止高光条跑出圆角外面 */
+
+    background-color: var(--color-surface);          /* 卡片保持纯白 */
+    border: 1px solid var(--color-border);           /* 淡淡的粉描边 */
+    border-radius: var(--radius);
+    padding: 42px 28px 32px;
+    text-align: center;
+    box-shadow: var(--shadow-sm);
+
+    /* 提前声明哪些属性要有过渡效果。
+       这样鼠标移入 / 移出时，位移、阴影、边框变化都是平滑的，而不是瞬间跳变。 */
+    transition: transform var(--dur) var(--ease),
+                box-shadow var(--dur) var(--ease),
+                border-color var(--dur) var(--ease);
+}
+
+/* 卡片顶部的渐变高光条：默认宽度为 0（看不见），悬停时从中间向两侧展开。
+   这是很常见的“精致感”小技巧——不动内容，只加一条会呼吸的线。 */
+.card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 50%;                /* 先放到中间 */
+    width: 0;                 /* 初始宽度 0，所以看不见 */
+    height: 3px;
+    background: var(--gradient-brand);
+    border-radius: 0 0 3px 3px;
+
+    /* translateX(-50%) 把它向左挪自身宽度的一半，这样就真正居中了 */
+    transform: translateX(-50%);
+    transition: width 0.38s var(--ease);
+}
+
+.card:hover::before {
+    width: 62%;               /* 展开到卡片宽度的 62%，比铺满更含蓄 */
+}
+
+/* 鼠标悬停：向上浮起 + 阴影加深 + 边框变明显 */
+.card:hover {
+    /* translateY(-8px) 表示沿 Y 轴向上移动 8px（负值向上，正值向下） */
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--color-border-strong);
+}
+
+/* ---------- 图标 ---------- */
+.card-icon {
+    width: 76px;
+    height: 76px;
+    margin: 0 auto 22px;      /* 上 0、左右 auto（居中）、下 22px */
+    font-size: 34px;
+    line-height: 76px;        /* 行高 = 高度，让 emoji 垂直居中 */
+
+    background: var(--gradient-icon);
+    border-radius: 50%;
+
+    /* inset 阴影画一圈白色内描边，让圆看起来有一点“厚度”；
+       后面那一段是向下的粉调投影。两个阴影用逗号分隔即可叠加。 */
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.9),
+                0 6px 16px rgba(224, 125, 153, 0.14);
+
+    transition: transform var(--dur) var(--ease);
+}
+
+/* 悬停时图标轻轻放大一点，和卡片的上升动作呼应 */
+.card:hover .card-icon {
+    transform: translateY(-2px) scale(1.06);
+}
+
+/* ---------- 卡片文字 ---------- */
+.card-title {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    color: var(--color-text);
+}
+
+.card-desc {
+    font-size: 14px;
+    color: var(--color-text-soft);
+    line-height: 1.8;
+}
+
+/* ---------- 卡片里的“去看看”链接 ---------- */
+.card-link {
+    display: inline-block;    /* 行内元素，但可以设内外边距 */
+    margin-top: 20px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--color-primary);
+    transition: color var(--dur) var(--ease),
+                letter-spacing var(--dur) var(--ease);
+}
+
+/* 卡片整体变成了链接之后，“去看看”本身就不再是链接了，
+   所以高亮不能挂在它自己的 :hover 上 ——
+   鼠标停在卡片任意角落时它都该亮起来，而不是只有戳中那几个字才有反应。 */
+.card:hover .card-link {
+    color: var(--color-primary-strong);
+    letter-spacing: 1px;      /* 悬停时字距微微拉开，像是“向前探出去” */
+}
+
+/* 键盘 Tab 走到卡片上时，跟着一起亮 */
+.card:focus-visible .card-link {
+    color: var(--color-primary-strong);
+}
+
+
+/* ============================================================
+   9. 数据统计条
+   ============================================================ */
+.stats {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 24px;
+
+    /* ★ 负外边距：让统计卡向上“骑”到 Hero 的底边上。
+       因为 Hero 底部是两个大圆角，卡片压上去之后会形成咬合，
+       比规规矩矩排在下面更有层次感——这是很常用的精致排版手法。 */
+    margin-top: -46px;
+
+    /* 负外距会让它和 Hero 重叠，必须显式抬高层级，
+       否则 Hero 会盖住它（Hero 有 overflow: hidden，更容易抢占视觉）。 */
+    position: relative;
+    z-index: 2;
+}
+
+.stats-card {
+    /* 四个数字平分一行 */
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    box-shadow: 0 10px 30px rgba(224, 125, 153, 0.14);
+    padding: 28px 16px;
+}
+
+/* 单个数字块 */
+.stat {
+    position: relative;       /* 给下面画分隔线用的 ::before 当参照物 */
+    text-align: center;
+}
+
+/* 数字之间的竖分隔线。
+   用 .stat + .stat 选中“前面还有兄弟元素”的那些，
+   这样第一个前面就不会多出一条线。 */
+.stat + .stat::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);   /* 向上挪一半自身高度，实现垂直居中 */
+    width: 1px;
+    height: 60%;
+    background-color: var(--color-border);
+}
+
+.stat-num {
+    display: block;           /* 让数字独占一行，说明文字才会换到下一行 */
+    font-size: 30px;
+    font-weight: 800;
+    line-height: 1.2;
+    letter-spacing: -0.5px;
+    color: var(--color-primary);
+
+    /* tabular-nums 让所有数字等宽。
+       这一步在滚动动画里很关键：不加的话，数字从 8 变成 1 时宽度会变，
+       整行文字会左右抖动。 */
+    font-variant-numeric: tabular-nums;
+}
+
+.stat-label {
+    display: block;
+    margin-top: 4px;
+    font-size: 13px;
+    color: var(--color-text-soft);
+}
+
+
+/* ============================================================
+  10. 热门好物
+   ============================================================ */
+.hot {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 88px 24px 0;
+
+    /* ★ 点击页内锚点跳到这个区块时，顶部要留出导航栏的高度。
+       因为导航栏是固定定位、浮在内容上方的，
+       不留这段距离的话，区块标题正好被它盖住 —— 用户会觉得“跳歪了”。
+
+       凡是带 id、会被锚点指向的区块，都应该加上这一句。 */
+    scroll-margin-top: calc(var(--nav-height) + 16px);
+}
+
+/* ---------- 排序工具栏 ---------- */
+.goods-toolbar {
+    display: flex;
+    flex-wrap: wrap;          /* 窄屏放不下时换行，而不是挤出屏幕 */
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-top: -22px;        /* 抵消一点上面副标题的 48px 下边距，别太散 */
+    margin-bottom: 30px;
+}
+
+.toolbar-label {
+    font-size: 13px;
+    color: var(--color-text-soft);
+    margin-right: 2px;
+}
+
+/* 排序按钮：默认是描边样式，选中后变成实心渐变 */
+.sort-btn {
+    padding: 8px 18px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--color-text-soft);
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-pill);
+    cursor: pointer;
+
+    transition: color var(--dur) var(--ease),
+                border-color var(--dur) var(--ease),
+                background-color var(--dur) var(--ease),
+                box-shadow var(--dur) var(--ease);
+}
+
+.sort-btn:hover {
+    color: var(--color-primary);
+    border-color: var(--color-border-strong);
+}
+
+.sort-btn.is-active {
+    color: #FFFFFF;
+    background: var(--gradient-brand);
+    border-color: transparent;
+    box-shadow: var(--shadow-glow);
+}
+
+/* 排序和筛选之间那条细竖线 */
+.toolbar-divider {
+    width: 1px;
+    height: 18px;
+    margin: 0 4px;
+    background-color: var(--color-border-strong);
+}
+
+/* ---------- “只看收藏”开关 ----------
+   和排序按钮长得像，但行为不同：
+   排序是一组里选一个，它则是一个可以独立开关的切换键。 */
+.fav-filter {
+    display: inline-flex;     /* inline-flex 让它像文字一样参与排列，同时内部能对齐 */
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--color-text-soft);
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-pill);
+    cursor: pointer;
+
+    transition: color var(--dur) var(--ease),
+                border-color var(--dur) var(--ease),
+                background-color var(--dur) var(--ease);
+}
+
+.fav-filter:hover {
+    color: var(--color-primary);
+    border-color: var(--color-border-strong);
+}
+
+/* 打开状态：浅粉底 + 粉边框，和实心的排序按钮区分开，
+   一眼就能看出“这两个按钮的性质不一样” */
+.fav-filter.is-active {
+    color: var(--color-primary);
+    background-color: var(--sakura-100);
+    border-color: var(--sakura-400);
+}
+
+.fav-filter-heart {
+    font-size: 15px;
+    line-height: 1;
+}
+
+/* 收藏数量小徽章 */
+.fav-count {
+    min-width: 18px;
+    padding: 0 5px;
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 18px;
+    text-align: center;
+    color: #FFFFFF;
+    background-color: var(--sakura-400);
+    border-radius: var(--radius-pill);
+}
+
+.fav-filter.is-active .fav-count {
+    background: var(--gradient-brand);
+}
+
+.goods-grid {
+    display: grid;
+
+    /* 每列最窄 240px —— 比功能卡片（280px）窄一点，
+       这样宽屏下一行能放下 4 张，信息密度更像一个真实的商品列表。 */
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 24px;
+}
+
+/* ---------- 商品卡片 ---------- */
+.goods-card {
+    position: relative;       /* 给绝对定位的成色标签当参照物 */
+    overflow: hidden;         /* 让图片放大时超出圆角的部分被裁掉 */
+    cursor: pointer;          /* 整张卡片都可以点，鼠标移上去要变成小手 */
+
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-sm);
+
+    transition: transform var(--dur) var(--ease),
+                box-shadow var(--dur) var(--ease),
+                border-color var(--dur) var(--ease);
+}
+
+.goods-card:hover {
+    transform: translateY(-6px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--color-border-strong);
+}
+
+/* 切换排序时，让卡片重新播一遍入场动画。
+   类名由 script.js 加上。
+   同样用 backwards 填充模式，动画播完就交还控制权，
+   否则卡片悬停上浮的 translateY(-6px) 会被动画的最终状态压住、失效。 */
+.goods-card.is-sorted {
+    animation: fadeUp 0.4s var(--ease) backwards;
+}
+
+/* 卡片可以用 Tab 键选中（HTML 上加了 tabindex="0"），
+   所以给键盘焦点一个明显的提示框。 */
+.goods-card:focus-visible {
+    outline: 2px solid var(--sakura-400);
+    outline-offset: 3px;
+}
+
+/* ---------- 收藏按钮 ----------
+   浮在图片右上角，和左上角的成色标签左右对称。 */
+.fav-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 1;               /* 压在图片上面，否则点不到 */
+
+    width: 34px;
+    height: 34px;
+    display: flex;            /* 用 flex 让 ♡ 居中，比调 line-height 更准 */
+    align-items: center;
+    justify-content: center;
+
+    font-size: 17px;
+    line-height: 1;
+    color: var(--color-text-soft);
+
+    background-color: rgba(255, 255, 255, 0.9);
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+    border: none;
+    border-radius: 50%;
+    box-shadow: 0 2px 8px rgba(224, 125, 153, 0.16);
+    cursor: pointer;
+
+    transition: color var(--dur) var(--ease),
+                background-color var(--dur) var(--ease),
+                transform var(--dur) var(--ease);
+}
+
+/* ★ 手机上的手指比鼠标粗得多，34px 的按钮很容易点不中，
+   而且它就贴在“整张卡片可点”的区域里，误触率很高。
+
+   但直接把按钮做大会让卡片显得笨重。
+   所以用一个看不见的伪元素把「能点到的范围」撑大：
+   看上去还是那个小圆点，实际命中区有 50×50。
+
+   伪元素算元素自己的一部分，点在它身上同样会触发按钮的点击事件。 */
+.fav-btn::after {
+    content: "";
+    position: absolute;
+    inset: -8px;
+}
+
+.fav-btn:hover {
+    color: var(--color-primary);
+    transform: scale(1.12);
+}
+
+/* 已收藏：变成渐变实心圆 + 白色实心心形 */
+.fav-btn.is-active {
+    color: #FFFFFF;
+    background: var(--gradient-brand);
+    box-shadow: 0 4px 12px rgba(194, 96, 126, 0.4);
+}
+
+.fav-btn.is-active:hover {
+    color: #FFFFFF;
+}
+
+/* ---------- 图片区（现在是 emoji 占位） ---------- */
+.goods-thumb {
+    /* aspect-ratio 用来锁定宽高比：4 / 3 就是“宽 : 高 = 4 : 3”。
+       好处是不管卡片被拉多宽，图片区域的高度都会自动算好，
+       不会出现图片加载前后页面高度乱跳的问题。 */
+    aspect-ratio: 4 / 3;
+
+    /* 用 flex 让 emoji 在图片区里水平垂直双向居中 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 48px;
+    background: var(--gradient-icon);
+
+    transition: transform var(--dur) var(--ease);
+}
+
+/* 悬停时图片区轻轻放大，形成“镜头推近”的效果。
+   因为父级 .goods-card 有 overflow: hidden，超出部分会被裁掉，
+   所以看起来是图片在放大，而不是卡片在变大。 */
+.goods-card:hover .goods-thumb {
+    transform: scale(1.06);
+}
+
+/* ---------- 成色标签（浮在图片左上角） ---------- */
+.goods-tag {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    padding: 4px 12px;
+
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--color-primary);
+
+    /* 半透明白底 + 毛玻璃，压在图片上也看得清 */
+    background-color: rgba(255, 255, 255, 0.9);
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+    border-radius: var(--radius-pill);
+    box-shadow: 0 2px 8px rgba(224, 125, 153, 0.16);
+}
+
+/* 全新未拆的用实心粉色标签，和其他成色区分开 */
+.goods-tag--new {
+    color: #FFFFFF;
+    background: var(--gradient-brand);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+}
+
+/* ---------- 卡片文字区 ---------- */
+.goods-body {
+    padding: 16px 18px 18px;
+}
+
+.goods-name {
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1.5;
+    margin-bottom: 6px;
+    color: var(--color-text);
+
+    /* 多行文本溢出显示省略号：把元素变成一个“弹性盒”，
+       再用 -webkit-line-clamp 限制行数，超出部分自动打点。
+       配合下面固定两行的高度，所有卡片的高度就能对齐，不会参差不齐。 */
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    min-height: 45px;         /* 15px × 1.5 行高 × 2 行 = 45px */
+}
+
+.goods-meta {
+    font-size: 12px;
+    color: var(--color-text-soft);
+    margin-bottom: 12px;
+}
+
+.goods-foot {
+    display: flex;
+    align-items: baseline;    /* 按文字基线对齐，大小字号并排才不会错位 */
+    gap: 8px;
+}
+
+.goods-price {
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--color-primary);
+}
+
+/* 原价：划掉并调淡，形成“现在便宜了多少”的对比 */
+.goods-origin {
+    font-size: 12px;
+    color: #B9A6AE;
+    text-decoration: line-through;
+}
+
+/* ---------- 筛选状态提示条 ---------- */
+.filter-tip {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+
+    margin-bottom: 24px;
+    padding: 12px 20px;
+    font-size: 13px;
+    color: var(--color-text-soft);
+
+    background-color: var(--sakura-100);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-pill);
+}
+
+.filter-clear {
+    padding: 4px 14px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--color-primary);
+    background-color: #FFFFFF;
+    border: 1px solid var(--color-border-strong);
+    border-radius: var(--radius-pill);
+    cursor: pointer;
+
+    transition: color var(--dur) var(--ease),
+                border-color var(--dur) var(--ease),
+                background-color var(--dur) var(--ease);
+}
+
+.filter-clear:hover {
+    color: #FFFFFF;
+    background: var(--gradient-brand);
+    border-color: transparent;
+}
+
+/* ---------- 空状态 ----------
+   筛完一件都不剩时顶上来，别让用户对着一片空白发愣。
+   虚线边框比实线更“空”，视觉上就在暗示“这里没有东西”。 */
+.empty-state {
+    padding: 64px 24px;
+    text-align: center;
+    background-color: var(--color-surface);
+    border: 1px dashed var(--color-border-strong);
+    border-radius: var(--radius);
+}
+
+.empty-icon {
+    margin-bottom: 14px;
+    font-size: 44px;
+    line-height: 1;
+    opacity: 0.7;
+}
+
+.empty-title {
+    margin-bottom: 6px;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--color-text);
+}
+
+.empty-desc {
+    margin-bottom: 22px;
+    font-size: 13px;
+    color: var(--color-text-soft);
+}
+
+.empty-btn {
+    padding: 11px 26px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--color-primary);
+    background-color: var(--sakura-100);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-pill);
+    cursor: pointer;
+
+    transition: color var(--dur) var(--ease),
+                background-color var(--dur) var(--ease),
+                border-color var(--dur) var(--ease);
+}
+
+.empty-btn:hover {
+    color: #FFFFFF;
+    background: var(--gradient-brand);
+    border-color: transparent;
+}
+
+
+/* ============================================================
+  11. 使用流程
+   ============================================================ */
+.steps {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 88px 24px 96px;
+}
+
+.steps-list {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);   /* 三步等宽平分 */
+    gap: 28px;
+}
+
+.step {
+    position: relative;       /* 给下面画虚线连接用的 ::after 当参照物 */
+    text-align: center;
+    padding: 0 8px;
+}
+
+/* 步骤序号：渐变色圆 */
+.step-num {
+    width: 72px;
+    height: 72px;
+    margin: 0 auto 20px;
+
+    font-size: 26px;
+    font-weight: 800;
+    line-height: 72px;        /* 行高 = 高度，让数字在圆里垂直居中 */
+    color: #FFFFFF;
+
+    background: var(--gradient-brand);
+    border-radius: 50%;
+    box-shadow: var(--shadow-glow);
+}
+
+/* ---------- 步骤之间的虚线连接 ----------
+   这也是用伪元素画的，所以 HTML 里不需要任何额外的标签。
+
+   left / right 的算法（假设步骤宽度为 W、间距 28px、圆直径 72px）：
+     · 圆心在 50% 处，圆的右边缘在 50% + 36px，再留 12px 空隙
+       → left: calc(50% + 48px)
+     · 下一个圆心在 100% + 28px + 50% 处，它的左边缘还要再减掉半径 36px
+       → 从本元素右边缘算起，需要向外延伸 (50% - 8px)
+       → right: calc(-50% + 8px)   （right 为负数就表示超出边界）
+
+   两个 calc() 配合，虚线就正好从圆的右边连到下一个圆的左边。 */
+.step:not(:last-child)::after {
+    content: "";
+    position: absolute;
+    top: 36px;                              /* 圆心所在的垂直位置 */
+    left: calc(50% + 48px);
+    right: calc(-50% + 8px);
+    height: 2px;
+
+    /* repeating-linear-gradient 做虚线：
+       前 8px 上色、后 8px 透明，如此循环往复。 */
+    background-image: repeating-linear-gradient(
+        90deg,
+        var(--sakura-300) 0 8px,
+        transparent 8px 16px
+    );
+}
+
+.step-title {
+    font-size: 17px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: var(--color-text);
+}
+
+.step-desc {
+    font-size: 14px;
+    color: var(--color-text-soft);
+    line-height: 1.75;
+}
+
+
+/* ============================================================
+  12. 浮层（弹窗 / 提示条 / 悬浮按钮）
+
+   两个弹窗共用同一套底层样式：遮罩、关闭按钮、按钮、入场动画，
+   各自只写自己独有的那部分。
+   ============================================================ */
+.goods-modal {
+    /* width 用 min() 取“760px”和“视口宽度减 40px”中较小的那个。
+       一个值就同时管住了大屏和小屏，不用再写媒体查询改宽度。
+       里面的 40px 是左右各留 20px 的边距。 */
+    width: min(760px, calc(100vw - 40px));
+
+    /* 高度同理：最高不超过视口高度减 40px，超出部分交给 .modal-body 内部滚动。
+       dvh 是动态视口高度，在手机浏览器上比 vh 更准。 */
+    max-height: calc(100dvh - 40px);
+
+    padding: 0;               /* <dialog> 默认有内边距，这里清掉好让图片贴边 */
+    border: none;
+    border-radius: var(--radius-lg);
+    color: var(--color-text);
+    box-shadow: 0 30px 70px rgba(194, 96, 126, 0.3);
+    overflow: hidden;         /* 裁掉超出圆角的部分 */
+
+    /* 位置不用管：浏览器对 showModal() 打开的 <dialog> 会自动水平垂直居中 */
+}
+
+/* <dialog> 不写这条时是 display: none（隐藏的），
+   加了 [open] 属性才显示。这里把显示方式设成两栏网格：左边图片、右边信息。 */
+.goods-modal[open] {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+
+    /* 弹窗弹出时从下方轻轻浮起 */
+    animation: modalIn 0.34s var(--ease);
+}
+
+/* 遮罩层：用 ::backdrop 伪元素，它会自动铺满整个视口并盖住页面 */
+.goods-modal::backdrop,
+.publish-modal::backdrop,
+.chat-modal::backdrop {
+    background-color: rgba(63, 50, 56, 0.42);
+    -webkit-backdrop-filter: blur(3px);
+    backdrop-filter: blur(3px);
+}
+
+@keyframes modalIn {
+    from {
+        opacity: 0;
+        transform: translateY(18px) scale(0.97);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* ---------- 关闭按钮 ---------- */
+.modal-close {
+    position: absolute;       /* 相对 <dialog> 定位（它是 fixed，天然是参照物） */
+    top: 14px;
+    right: 14px;
+    z-index: 1;               /* 保证压在图片上面，否则点不到 */
+
+    /* 40px 是触摸目标的底线附近（苹果建议 44，谷歌 48）。
+       关闭按钮点不中的话，用户会被困在弹窗里 —— 这个必须够大。 */
+    width: 40px;
+    height: 40px;
+    display: flex;            /* 用 flex 让 × 符号居中 */
+    align-items: center;
+    justify-content: center;
+
+    font-size: 22px;
+    line-height: 1;
+    color: var(--color-text-soft);
+    background-color: rgba(255, 255, 255, 0.92);
+    border: 1px solid var(--color-border);
+    border-radius: 50%;
+    cursor: pointer;
+
+    transition: color var(--dur) var(--ease),
+                background-color var(--dur) var(--ease);
+}
+
+.modal-close:hover {
+    color: var(--color-primary);
+    background-color: #FFFFFF;
+}
+
+/* ---------- 图片区 ---------- */
+.modal-thumb {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 96px;
+    min-height: 260px;
+    background: var(--gradient-icon);
+}
+
+/* ---------- 右侧信息区 ---------- */
+.modal-body {
+    padding: 30px 32px 28px;
+
+    /* 这两行配合上面的 max-height，让内容过长时只在右侧滚动，
+       而不是把整个弹窗撑破、或者把图片一起滚走。
+       min-height: 0 是必须的：网格子元素默认最小高度是“内容高度”，
+       不改成 0 的话它不肯被压缩，overflow 也就永远不会生效。 */
+    overflow-y: auto;
+    min-height: 0;
+}
+
+/* 覆盖 .goods-tag 在卡片里的绝对定位：
+   在弹窗里它是正常文档流里的元素，而且底色要换成浅粉（白底上看不见白色标签）。 */
+.modal-body .goods-tag {
+    position: static;
+    display: inline-block;
+    margin-bottom: 14px;
+    background-color: var(--sakura-100);
+    box-shadow: none;
+}
+
+/* “全新”那个实心粉色标签要保持原样，不能被上面那条规则盖掉 */
+.modal-body .goods-tag--new {
+    background: var(--gradient-brand);
+    color: #FFFFFF;
+}
+
+.modal-title {
+    font-size: 23px;
+    font-weight: 700;
+    line-height: 1.4;
+    margin-bottom: 8px;
+}
+
+.modal-meta {
+    font-size: 13px;
+    color: var(--color-text-soft);
+    margin-bottom: 22px;
+}
+
+/* 价格区：用一条虚线和大段文字分隔，比实线轻、比留白明确 */
+.modal-price {
+    display: flex;
+    align-items: baseline;    /* 按文字基线对齐，大小字号并排才不会错位 */
+    gap: 10px;
+    padding-bottom: 22px;
+    margin-bottom: 22px;
+    border-bottom: 1px dashed var(--color-border-strong);
+}
+
+.modal-price-now {
+    font-size: 32px;
+    font-weight: 800;
+    color: var(--color-primary);
+}
+
+.modal-price-origin {
+    font-size: 14px;
+    color: #B9A6AE;
+    text-decoration: line-through;
+}
+
+.modal-desc {
+    font-size: 14px;
+    line-height: 1.9;
+    color: var(--color-text-soft);
+    margin-bottom: 28px;
+}
+
+/* ---------- 底部按钮 ---------- */
+.modal-actions {
+    display: flex;
+    flex-wrap: wrap;          /* 三个按钮挤不下时允许换行，而不是把文字压扁 */
+    gap: 12px;
+}
+
+.modal-btn {
+    flex: 1;                  /* 两个按钮平分整行宽度 */
+    padding: 13px 20px;
+    font-size: 15px;
+    font-weight: 600;
+    border-radius: var(--radius-pill);
+    cursor: pointer;
+
+    transition: background-color var(--dur) var(--ease),
+                box-shadow var(--dur) var(--ease),
+                transform var(--dur) var(--ease),
+                filter var(--dur) var(--ease);
+}
+
+/* 次要按钮：浅粉底 + 粉字 */
+.modal-btn--ghost {
+    color: var(--color-primary);
+    background-color: var(--sakura-100);
+    border: 1px solid var(--color-border);
+}
+
+.modal-btn--ghost:hover {
+    background-color: var(--sakura-200);
+}
+
+/* 详情弹窗里“已收藏”的状态：从描边变成实心，
+   一眼能看出这按钮现在代表“取消收藏”而不是“收藏”。 */
+.modal-btn--ghost.is-fav {
+    color: #FFFFFF;
+    background: var(--gradient-brand);
+    border-color: transparent;
+}
+
+/* 主要按钮：渐变实心 + 光晕 */
+.modal-btn--primary {
+    color: #FFFFFF;
+    background: var(--gradient-brand);
+    border: 1px solid transparent;
+    box-shadow: var(--shadow-glow);
+}
+
+.modal-btn--primary:hover {
+    transform: translateY(-1px);
+    filter: brightness(1.06);
+}
+
+/* 危险操作按钮（撤回发布）。
+   用深红描边、白底，而不是和主按钮一样的实心色块——
+   在一个满屏粉色的页面里，实心红太抢眼，反而会诱导用户去点它。 */
+.modal-btn--danger {
+    color: var(--color-danger);
+    background-color: #FFFFFF;
+    border: 1px solid #F0C4CE;
+}
+
+.modal-btn--danger:hover {
+    background-color: #FFF6F8;
+    border-color: var(--color-danger);
+}
+
+/* 弹窗打开时锁住背景滚动。
+   这个类由 JS 加在 <html> 上（而不是 <body>），
+   因为页面实际滚动的通常是 html 元素，加在 body 上不一定管用。 */
+html.is-modal-open {
+    overflow: hidden;
+}
+
+
+/* ------------------------------------------------------------
+   12.7 私信弹窗
+
+   结构上是“上下固定、中间滚动”的经典聊天布局：
+     .chat-head  固定在上
+     .chat-list  吃掉中间所有空间并自己滚动
+     .chat-form  固定在下
+   ------------------------------------------------------------ */
+.chat-modal {
+    width: min(460px, calc(100vw - 32px));
+    /* 先写 vh 再写 dvh：不支持 dvh 的浏览器会忽略第二行，用第一行兜底。
+       （body 那里也是这个写法，这里之前漏了。） */
+    height: min(600px, calc(100vh - 48px));
+    height: min(600px, calc(100dvh - 48px));
+
+    padding: 0;
+    border: none;
+    border-radius: var(--radius-lg);
+    background-color: var(--color-surface);
+    color: var(--color-text);
+    box-shadow: 0 30px 70px rgba(194, 96, 126, 0.3);
+    overflow: hidden;
+
+    /* 位置不用管：showModal() 打开的 <dialog> 浏览器会自动居中 */
+}
+
+/* 用 flex 列布局把三块竖着排好 */
+.chat-modal[open] {
+    display: flex;
+    flex-direction: column;
+    animation: modalIn 0.34s var(--ease);
+}
+
+/* ---------- 顶部：对话对象 ---------- */
+.chat-head {
+    flex-shrink: 0;           /* 不参与压缩，高度固定 */
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    padding: 15px 16px 15px 18px;
+    /* 用渐变代替纯色：和站点的品牌渐变呼应，顶部也不那么平 */
+    background: linear-gradient(135deg, #FFF0F4 0%, #F3ECFD 100%);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.chat-avatar {
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 17px;
+    font-weight: 700;
+    color: #FFFFFF;
+    background: var(--gradient-brand);
+    border-radius: 50%;
+}
+
+/* flex: 1 占满中间；min-width: 0 让里面的长文字可以被省略号截断 */
+.chat-who {
+    flex: 1;
+    min-width: 0;
+}
+
+.chat-name {
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 1.4;
+}
+
+.chat-sub {
+    font-size: 12px;
+    color: var(--color-text-soft);
+
+    /* 单行超出用省略号。三个属性必须一起用：
+       overflow: hidden 裁掉多余内容，
+       white-space: nowrap 禁止换行，
+       text-overflow: ellipsis 用省略号表示“被截断了”。 */
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+/* 这个关闭按钮不用 .modal-close，因为那个是绝对定位到右上角的，
+   会盖在头像上。这里让它规规矩矩当一个 flex 子项。 */
+.chat-close {
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 20px;
+    line-height: 1;
+    color: var(--color-text-soft);
+    background: none;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+
+    transition: color var(--dur) var(--ease),
+                background-color var(--dur) var(--ease);
+}
+
+.chat-close:hover {
+    color: var(--color-primary);
+    background-color: var(--sakura-100);
+}
+
+/* ---------- 中间：消息列表 ---------- */
+.chat-list {
+    flex: 1;                  /* 吃掉所有剩余高度 */
+    min-height: 0;            /* ★ 关键：不写这句，它宁可被内容撑破也不肯滚动 */
+    overflow-y: auto;         /* 消息多了只在这里滚 */
+
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 18px;
+
+    /* 浅粉底，和白色气泡形成对比，气泡才“浮”得起来 */
+    background-color: var(--color-bg);
+
+    /* 淡淡的圆点底纹：用 radial-gradient 画一个小圆点，
+       再让 background-size 把它平铺出去。纯 CSS，不占一个图片请求。
+       透明度压到 0.09 —— 底纹是拿来“垫底”的，抢了气泡的视线就本末倒置了。 */
+    background-image: radial-gradient(circle, rgba(226, 109, 149, 0.09) 1px, transparent 1px);
+    background-size: 18px 18px;
+}
+
+/* ---------- 消息行：头像 + 气泡 ---------- */
+.chat-row {
+    display: flex;
+    /* 底部对齐：头像和气泡的下沿齐平，比顶部对齐自然 */
+    align-items: flex-end;
+    gap: 8px;
+}
+
+.chat-row--them { justify-content: flex-start; }
+/* 自己发的不显示头像，直接靠右 */
+.chat-row--me   { justify-content: flex-end; }
+
+/* 列表里的小头像 */
+.chat-avatar--sm {
+    flex-shrink: 0;
+    width: 30px;
+    height: 30px;
+    font-size: 13px;
+}
+
+/* 同一个人连发好几条时，后面几条不显示头像，
+   但★位置要留着★ —— 留位子才能让这一组气泡左边对齐成一列。
+   所以不是把元素删掉，而是只把底色去掉。 */
+.chat-avatar--ghost {
+    background: none;
+}
+
+.chat-msg {
+    position: relative;       /* 给下面那个小尾巴当参照物 */
+    max-width: 78%;
+    padding: 10px 14px;
+    font-size: 14px;
+    line-height: 1.6;
+    border-radius: 16px;
+
+    /* 长串的英文或链接不会撑破气泡，会在需要的地方断开换行 */
+    word-break: break-word;
+}
+
+/* 对方发的：白底 */
+.chat-msg--them {
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+
+    /* 靠说话人那一角把圆角收小，和尾巴连起来更自然 */
+    border-bottom-left-radius: 5px;
+}
+
+/* 自己发的：渐变实心 */
+.chat-msg--me {
+    color: #FFFFFF;
+    background: var(--gradient-brand);
+    border-bottom-right-radius: 5px;
+}
+
+/* ---------- 气泡的小尾巴 ----------
+   一个用「边框」拼出来的三角形：
+   元素宽高都是 0，四条边框里只给一条上色，
+   相邻两条设成透明，剩下的形状正好是个直角三角。
+   这是 CSS 里画三角形的老办法，不需要图片、不需要 SVG。 */
+.chat-msg--them::before {
+    content: "";
+    position: absolute;
+    left: -5px;
+    bottom: 9px;
+    width: 0;
+    height: 0;
+    border: 5px solid transparent;
+    border-left: 0;
+    border-right-color: var(--color-surface);
+}
+
+.chat-msg--me::before {
+    content: "";
+    position: absolute;
+    right: -5px;
+    bottom: 9px;
+    width: 0;
+    height: 0;
+    border: 5px solid transparent;
+    border-right: 0;
+    /* 气泡本身是渐变的，三角形没法跟着渐变，只能取一个近似色。
+       尾巴长在气泡右下角，那里的颜色最接近渐变的末端（深紫）。 */
+    border-left-color: #9B79C9;
+}
+
+/* 系统提示：居中、小字、没有气泡 */
+.chat-sys {
+    align-self: center;
+    max-width: 92%;
+    font-size: 11px;
+    line-height: 1.6;
+    text-align: center;
+    color: var(--color-text-soft);
+}
+
+/* ---------- 时间分隔 ---------- */
+.chat-stamp {
+    align-self: center;
+    font-size: 11px;
+    color: var(--color-text-soft);
+    opacity: 0.85;
+}
+
+/* ---------- “对方正在输入” ---------- */
+.chat-msg--typing {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 14px;
+}
+
+.typing-dot {
+    width: 6px;
+    height: 6px;
+    background-color: var(--color-text-soft);
+    border-radius: 50%;
+    opacity: 0.4;
+
+    /* 三个点用同一个动画，靠 animation-delay 各自错开，
+       就形成了“此起彼伏”的跳动感。写一套动画就够，不用写三套。 */
+    animation: typingBounce 1.2s infinite ease-in-out;
+}
+
+.typing-dot:nth-child(2) { animation-delay: 0.15s; }
+.typing-dot:nth-child(3) { animation-delay: 0.3s; }
+
+@keyframes typingBounce {
+    0%, 60%, 100% { transform: translateY(0);    opacity: 0.35; }
+    30%           { transform: translateY(-4px); opacity: 0.9;  }
+}
+
+/* ---------- 底部：快捷短语 ----------
+   聊天里最常说的就那么几句，每次手打很烦。
+   点一下就填进输入框 —— 不是直接发出去，用户还能改两个字再发。 */
+.chat-quick {
+    flex-shrink: 0;
+    display: flex;
+    gap: 8px;
+    padding: 10px 14px 8px;
+
+    /* 短语多了可以横向滑，而不是换行把弹窗撑高 */
+    overflow-x: auto;
+
+    background-color: var(--color-surface);
+    border-top: 1px solid var(--color-border);
+
+    /* 藏掉横向滚动条，只保留能滑的能力 */
+    scrollbar-width: none;
+}
+
+.chat-quick::-webkit-scrollbar {
+    display: none;
+}
+
+.quick-chip {
+    flex-shrink: 0;
+    padding: 6px 14px;
+    font-size: 12px;
+    color: var(--color-primary);
+    background-color: var(--sakura-100);
+    border: 1px solid transparent;
+    border-radius: var(--radius-pill);
+    cursor: pointer;
+    white-space: nowrap;
+
+    transition: background-color var(--dur) var(--ease),
+                border-color var(--dur) var(--ease);
+}
+
+.quick-chip:hover {
+    background-color: var(--sakura-200);
+    border-color: var(--color-border-strong);
+}
+
+/* ---------- 底部：输入区 ----------
+   上边框由 .chat-quick 负责，这里不能再加一条，否则会有两条线挨着。 */
+.chat-form {
+    flex-shrink: 0;
+    display: flex;
+    gap: 10px;
+    padding: 12px 14px;
+
+    background-color: var(--color-surface);
+}
+
+.chat-input {
+    flex: 1;
+    min-width: 0;
+    padding: 11px 18px;
+
+    font-size: 14px;
+    color: var(--color-text);
+    background-color: var(--sakura-50);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-pill);
+
+    transition: border-color var(--dur) var(--ease),
+                background-color var(--dur) var(--ease),
+                box-shadow var(--dur) var(--ease);
+}
+
+.chat-input::placeholder {
+    color: #B9A6AE;
+}
+
+/* 和搜索框、表单输入框用的是同一套聚焦光圈，保持一致 */
+.chat-input:focus {
+    outline: none;
+    background-color: #FFFFFF;
+    border-color: var(--sakura-400);
+    box-shadow: 0 0 0 3px rgba(255, 183, 197, 0.28);
+}
+
+.chat-send {
+    flex-shrink: 0;
+    padding: 11px 22px;
+
+    font-size: 14px;
+    font-weight: 600;
+    color: #FFFFFF;
+
+    background: var(--gradient-brand);
+    border: none;
+    border-radius: var(--radius-pill);
+    cursor: pointer;
+    box-shadow: var(--shadow-glow);
+
+    transition: transform var(--dur) var(--ease),
+                box-shadow var(--dur) var(--ease),
+                filter var(--dur) var(--ease);
+}
+
+.chat-send:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.06);
+}
+
+.chat-send:active {
+    transform: translateY(0) scale(0.97);
+}
+
+
+/* ------------------------------------------------------------
+   12.4 发布商品弹窗
+   ------------------------------------------------------------ */
+.publish-modal {
+    /* 和详情弹窗同一套写法：宽度用 min() 同时管住大小屏 */
+    width: min(560px, calc(100vw - 40px));
+    max-height: calc(100dvh - 40px);
+    padding: 0;
+    border: none;
+    border-radius: var(--radius-lg);
+    color: var(--color-text);
+    box-shadow: 0 30px 70px rgba(194, 96, 126, 0.3);
+    overflow: hidden;
+}
+
+.publish-modal[open] {
+    display: block;
+    animation: modalIn 0.34s var(--ease);
+}
+
+.publish-form {
+    padding: 30px 32px 28px;
+    /* 内容比屏幕高时，滚动条只出现在弹窗内部，而不是整页跟着滚 */
+    max-height: calc(100dvh - 40px);
+    overflow-y: auto;
+}
+
+.publish-title {
+    font-size: 21px;
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+
+.publish-sub {
+    font-size: 13px;
+    color: var(--color-text-soft);
+    margin-bottom: 24px;
+}
+
+/* ---------- 字段容器 ---------- */
+.field {
+    margin-bottom: 18px;
+}
+
+/* 两列并排的字段行 */
+.field-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 18px;      /* 行与行之间的间距由这里管 */
+}
+
+.field-row .field {
+    margin-bottom: 0;         /* 关掉单个字段的间距，避免和上面的重复叠加 */
+}
+
+.field-label {
+    display: block;           /* <label> 默认是行内元素，改成块级才能占满一行 */
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 7px;
+}
+
+/* 必填项后面的红色星号 */
+.req {
+    color: var(--color-danger);
+}
+
+/* ---------- 输入框 ---------- */
+.field-input {
+    width: 100%;              /* 默认输入框宽度是固定的，必须撑满容器 */
+    padding: 11px 14px;
+    font-size: 14px;
+    color: var(--color-text);
+
+    background-color: var(--sakura-50);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+
+    transition: border-color 0.25s var(--ease),
+                background-color 0.25s var(--ease),
+                box-shadow 0.25s var(--ease);
+}
+
+.field-input::placeholder {
+    color: #B9A6AE;
+}
+
+.field-input:focus {
+    /* 去掉浏览器默认那圈又黑又硬的轮廓线…… */
+    outline: none;
+
+    /* ……换成一层柔和的粉色光圈。
+       box-shadow 不占空间、不影响布局，是可以自由叠加的“装饰层”，
+       比 border 更适合做聚焦光环。 */
+    background-color: #FFFFFF;
+    border-color: var(--sakura-400);
+    box-shadow: 0 0 0 3px rgba(255, 183, 197, 0.28);
+}
+
+.field-textarea {
+    /* 只允许上下拉伸。允许横向拉的话，用户一拉就撑破弹窗了 */
+    resize: vertical;
+    min-height: 84px;
+    line-height: 1.7;
+}
+
+/* ---------- 带 ¥ 前缀的输入框 ----------
+   把符号和输入框包在同一个容器里，容器负责画边框和聚焦光圈，
+   里面的输入框则完全透明无边框。
+   好处是聚焦时光圈会环绕“¥ + 输入内容”整体，而不是只圈住输入框。 */
+.input-affix {
+    display: flex;
+    align-items: center;
+    padding-left: 13px;
+
+    background-color: var(--sakura-50);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+
+    transition: border-color 0.25s var(--ease),
+                background-color 0.25s var(--ease),
+                box-shadow 0.25s var(--ease);
+}
+
+/* 和搜索卡片用的是同一招：内部任意元素获得焦点，整个容器一起响应 */
+.input-affix:focus-within {
+    background-color: #FFFFFF;
+    border-color: var(--sakura-400);
+    box-shadow: 0 0 0 3px rgba(255, 183, 197, 0.28);
+}
+
+.input-affix .affix {
+    flex-shrink: 0;
+    font-size: 14px;
+    color: var(--color-text-soft);
+}
+
+/* 前缀容器里的输入框要把自己的边框和背景都交出去 */
+.input-affix .field-input {
+    padding-left: 6px;
+    background: transparent;
+    border: none;
+}
+
+.input-affix .field-input:focus {
+    background: transparent;
+    box-shadow: none;
+}
+
+/* ---------- 封面图标选择器 ---------- */
+.emoji-picker {
+    display: flex;
+    flex-wrap: wrap;          /* 一行放不下就换行 */
+    gap: 8px;
+}
+
+.emoji-opt {
+    width: 46px;
+    height: 46px;
+    font-size: 22px;
+    line-height: 1;
+
+    background-color: var(--sakura-50);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+
+    transition: border-color 0.25s var(--ease),
+                background-color 0.25s var(--ease),
+                box-shadow 0.25s var(--ease);
+}
+
+.emoji-opt:hover {
+    border-color: var(--color-border-strong);
+}
+
+.emoji-opt.is-active {
+    background-color: var(--sakura-100);
+    border-color: var(--sakura-400);
+    box-shadow: 0 0 0 3px rgba(255, 183, 197, 0.28);
+}
+
+/* ---------- 校验出错的状态 ----------
+   .field-error 平时是 display: none（看不见），
+   只有外层 .field 被 JS 加上 has-error 类，它才会现身。
+   这样可以先写好所有提示文字，不用在 JS 里拼字符串。 */
+.field-error {
+    display: none;
+    margin-top: 6px;
+    font-size: 12px;
+    color: var(--color-danger);
+}
+
+.field.has-error .field-error {
+    display: block;
+}
+
+.field.has-error .field-input {
+    border-color: var(--color-danger);
+    background-color: #FFF6F8;
+}
+
+/* 带 ¥ 前缀的那种，边框画在外层容器上，所以要单独指一下 */
+.field.has-error .input-affix {
+    border-color: var(--color-danger);
+    background-color: #FFF6F8;
+}
+
+/* ---------- 底部按钮 ---------- */
+.publish-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 26px;
+}
+
+
+/* ------------------------------------------------------------
+   12.5 悬浮发布按钮
+   ------------------------------------------------------------ */
+.fab {
+    position: fixed;          /* 固定在视口上，页面怎么滚它都不动 */
+    right: 28px;
+    bottom: 28px;
+
+    /* 层级要够高才能浮在页面内容上，但不用超过导航栏（1000）：
+       弹窗走的是浏览器顶层（top layer），根本不参与 z-index 的比较。 */
+    z-index: 900;
+
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 15px 26px;
+
+    font-size: 15px;
+    font-weight: 600;
+    color: #FFFFFF;
+
+    background: var(--gradient-brand);
+    border: none;
+    border-radius: var(--radius-pill);
+    /* 这一圈光晕让它看起来是“浮”在页面之上的 */
+    box-shadow: 0 12px 30px rgba(194, 96, 126, 0.4);
+    cursor: pointer;
+
+    transition: transform 0.28s var(--ease),
+                box-shadow 0.28s var(--ease),
+                filter 0.28s var(--ease);
+}
+
+.fab:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 18px 40px rgba(194, 96, 126, 0.5);
+    filter: brightness(1.06);
+}
+
+.fab:active {
+    transform: translateY(-1px) scale(0.97);
+}
+
+.fab-plus {
+    font-size: 20px;
+    line-height: 1;
+}
+
+
+/* ------------------------------------------------------------
+   12.8 回到顶部
+
+   默认是藏起来的，滚过一段距离才淡入。
+   一直挂在角落里的按钮很吵，尤其页面内容少的时候根本没意义。
+   ------------------------------------------------------------ */
+.to-top {
+    position: fixed;
+    right: 28px;
+    bottom: 28px;
+    z-index: 900;
+
+    width: 46px;
+    height: 46px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 20px;
+    line-height: 1;
+    color: var(--color-primary);
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 50%;
+    box-shadow: var(--shadow-md);
+    cursor: pointer;
+
+    /* 隐藏三件套：
+         opacity        看不见
+         visibility     ★ 不只是透明 —— 透明元素仍然能被 Tab 键选中、被读屏软件念到，
+                          必须加 visibility: hidden 才算真的“不存在”
+         translateY     顺手往下挪 10px，出现时有个上浮的动作 */
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(10px);
+
+    transition: opacity 0.3s var(--ease),
+                transform 0.3s var(--ease),
+                visibility 0.3s var(--ease),
+                color 0.25s var(--ease),
+                background-color 0.25s var(--ease),
+                border-color 0.25s var(--ease);
+}
+
+/* 有悬浮发布按钮的页面，把回到顶部往上让一层，两个按钮叠着放不打架 */
+.to-top--high {
+    bottom: 92px;
+}
+
+/* JS 滚动到一定距离后加上这个类，按钮淡入 */
+.to-top.is-show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.to-top:hover {
+    color: #FFFFFF;
+    background: var(--gradient-brand);
+    border-color: transparent;
+}
+
+@media (max-width: 768px) {
+
+    .to-top {
+        right: 16px;
+        bottom: 16px;
+        width: 42px;
+        height: 42px;
+        font-size: 18px;
+    }
+
+    /* 同样让开手机上的发布按钮 */
+    .to-top--high {
+        bottom: 76px;
+    }
+}
+
+
+/* ------------------------------------------------------------
+   12.6 顶部提示条
+   ------------------------------------------------------------ */
+.toast-wrap {
+    position: fixed;
+    top: calc(var(--nav-height) + 16px);   /* 压在导航栏下沿的下面 */
+    left: 50%;                             /* 先放到水平正中…… */
+    transform: translateX(-50%);           /* ……再向左挪半个自身宽度，才是真居中 */
+
+    /* 层级要比导航栏（1000）高，免得万一重叠时被压住 */
+    z-index: 1100;
+
+    display: flex;
+    flex-direction: column;   /* 连续弹出多条时，从上往下依次排 */
+    align-items: center;
+    gap: 10px;
+
+    /* ★ 这一条很重要：容器本身不能挡住鼠标事件。
+       它是一条横贯屏幕顶部的“隐形的带子”，如果可点击，
+       用户会发现导航栏下方那一整条区域点不动了。
+       子元素 .toast 会重新把点击接管回来（如果需要的话）。 */
+    pointer-events: none;
+}
+
+.toast {
+    padding: 12px 24px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #FFFFFF;
+    background: var(--gradient-brand);
+    border-radius: var(--radius-pill);
+    box-shadow: 0 10px 26px rgba(194, 96, 126, 0.36);
+
+    /* 不让提示文字换行。提示都很短，换行反而显得笨重 */
+    white-space: nowrap;
+
+    /* 初始状态：透明、比最终位置高 12px（也就是“在上面待着”） */
+    opacity: 0;
+    transform: translateY(-12px);
+
+    /* 出入场都靠这一段过渡。JS 只要加减 is-show 这一个类，
+       两个方向的动画就都有了，不用写两套。 */
+    transition: opacity 0.3s var(--ease),
+                transform 0.3s var(--ease);
+}
+
+/* JS 加上 is-show：淡入 + 落回原位 */
+.toast.is-show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+
+/* ============================================================
+  13. 页脚
+   位置由第 2 节 body 的 flex 布局决定（main 撑开剩余空间），
+   这里只负责外观。
+   ============================================================ */
+.footer {
+    background-color: var(--color-surface);
+    border-top: 1px solid var(--color-border);   /* 一条淡粉细线，比阴影更轻 */
+    padding: 40px 24px 36px;
+}
+
+.footer-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    text-align: center;       /* 页脚内容整体居中 */
+}
+
+/* ---------- 页脚文字链接 ---------- */
+.footer-links {
+    display: flex;
+    flex-wrap: wrap;          /* 窄屏放不下时自动换行，而不是被挤出屏幕 */
+    justify-content: center;
+    gap: 12px 30px;           /* 行间距 12px、列间距 30px */
+    margin-bottom: 20px;
+}
+
+.footer-links a {
+    font-size: 14px;
+    color: var(--color-text-soft);
+    transition: color var(--dur) var(--ease);
+}
+
+.footer-links a:hover {
+    color: var(--color-primary);
+}
+
+/* ---------- 版权信息 ---------- */
+.footer-copyright {
+    font-size: 13px;
+    color: var(--color-text-soft);
+}
+
+/* 用 ::before 生成一条 40px 宽的小短线，作为链接和版权之间的分隔 */
+.footer-copyright::before {
+    content: "";
+    display: block;
+    width: 40px;
+    height: 1px;
+    margin: 0 auto 20px;
+    background-color: var(--color-border-strong);
+}
+
+
+/* ============================================================
+  14. 入场动画（页面打开时元素依次浮现）
+   ============================================================ */
+@keyframes fadeUp {
+    from {
+        opacity: 0;
+        transform: translateY(18px);   /* 从下方 18px 处开始 */
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);      /* 回到原位 */
+    }
+}
+
+/* 给 Hero 内容加动画 */
+.hero-content {
+    /* animation 的四个值依次是：动画名、时长、缓动、填充模式 */
+    animation: fadeUp 0.7s var(--ease) backwards;
+}
+
+/* ---------- ★ 一个很容易踩的坑，值得单独说明 ----------
+   如果这里写成 fill-mode: both 或 forwards（让元素停在动画的最后一帧），
+   动画结束后，"transform: translateY(0)" 会一直挂在元素上，
+   优先级高于 .card:hover 里的 translateY(-8px)，
+   结果就是——悬停上浮的动画彻底失效了。
+
+   解法：用 backwards。
+   它的意思是“在动画开始前（也就是 delay 期间）先应用 from 那一帧”，
+   动画一旦播完就交还控制权，元素回到普通 CSS 状态。
+   而动画的终点本来就和普通状态一样（opacity 1、位置不动），
+   所以看不出任何差别，但悬停效果能正常工作。 */
+.card {
+    animation: fadeUp 0.6s var(--ease) backwards;
+}
+
+/* 让三张卡片依次入场，而不是齐刷刷一起出现（错峰 0.1 秒） */
+.card:nth-child(1) { animation-delay: 0.12s; }
+.card:nth-child(2) { animation-delay: 0.22s; }
+.card:nth-child(3) { animation-delay: 0.32s; }
+
+
+/* ============================================================
+  15. 响应式适配（Media Queries）
+
+   ★ @media 就是“媒体查询”：只有当括号里的条件成立时，里面的样式才生效。
+     常用的两种条件：
+       @media (max-width: 768px)  → 屏幕宽度“小于等于”768px 时生效（写手机样式用这个）
+       @media (min-width: 768px)  → 屏幕宽度“大于等于”768px 时生效（写大屏样式用这个）
+
+   ★ 写法思路：先写好桌面端（宽屏）的完整样式，
+     再用 max-width 一层层往下“打补丁”。
+     屏幕越窄，生效的补丁越多，浏览器会自动叠加应用。
+
+   ★ 断点的选择（本项目只用一个）：
+     768px 是平板竖屏 / 手机横屏的常见分界线。
+     小于它基本可以认为是手机，需要单列布局 + 更小的字号。
+   ============================================================ */
+@media (max-width: 768px) {
+
+    /* ---------- 导航栏 ---------- */
+    .nav-container {
+        padding: 0 16px;
+        gap: 12px;
+    }
+
+    /* 小屏幕上菜单项间距缩小 */
+    .nav-menu {
+        gap: 16px;
+
+        /* 五个菜单项挤在窄屏上可能放不下，这里允许它横向滚动，而不是换行撑高导航栏。
+           overflow-x: auto 表示“内容超出时出现横向滚动条”。 */
+        overflow-x: auto;
+
+        /* 在 iOS 上让滚动更顺滑（带惯性） */
+        -webkit-overflow-scrolling: touch;
+
+        /* 隐藏滚动条本身，只保留可滑动的能力，视觉上更干净 */
+        scrollbar-width: none;          /* Firefox */
+    }
+
+    .nav-menu::-webkit-scrollbar {
+        display: none;                  /* Chrome / Edge / Safari */
+    }
+
+    /* ★ 手机上这排菜单是能横滑的，但滚动条被藏起来了，
+       用户看不出“右边还有东西” —— 后两项就静静地待在屏幕外。
+       所以给容器右边缘加一层渐隐：内容滑到边上会淡出，
+       这个视觉线索是在说“这里还能往右滑”。 */
+    .nav-wrap {
+        -webkit-mask-image: linear-gradient(90deg, #000 0, #000 calc(100% - 26px), transparent 100%);
+        mask-image: linear-gradient(90deg, #000 0, #000 calc(100% - 26px), transparent 100%);
+    }
+
+    .nav-menu a {
+        font-size: 14px;
+        white-space: nowrap;            /* 禁止菜单文字折行 */
+    }
+
+    .logo-text {
+        font-size: 18px;
+    }
+
+    /* ---------- 欢迎横幅 ---------- */
+    .hero {
+        padding: 56px 20px 64px;        /* 内边距一起缩小，手机上不显得空旷 */
+        border-radius: 0 0 22px 22px;   /* 圆角也相应收敛 */
+    }
+
+    /* 光斑在小屏上容易糊满整块背景，缩小并降低存在感 */
+    .hero-blob {
+        filter: blur(48px);
+        opacity: 0.55;
+    }
+
+    .hero-blob--sakura { width: 240px; height: 240px; top: -90px;    left: -70px; }
+    .hero-blob--lilac  { width: 220px; height: 220px; bottom: -100px; right: -60px; }
+
+    .hero-badge {
+        padding: 6px 14px;
+        font-size: 12px;
+        margin-bottom: 18px;
+    }
+
+    .hero-title {
+        font-size: 34px;                /* 52px → 34px，一行放得下，不会挤成两行 */
+        letter-spacing: 2px;
+    }
+
+    .hero-subtitle {
+        font-size: 14px;                /* 17px → 14px */
+        line-height: 1.75;
+        margin-bottom: 26px;
+    }
+
+    /* ---------- 搜索栏 ---------- */
+    .search-card {
+        border-radius: 16px;
+    }
+
+    .search-tabs {
+        padding: 6px 8px 0;
+    }
+
+    .search-tab {
+        padding: 10px 4px;
+        font-size: 13px;
+    }
+
+    /* 手机上左右留白收紧，把宝贵的宽度让给输入框 */
+    .search-row {
+        gap: 8px;
+        padding: 10px 10px 10px 14px;
+    }
+
+    .search-input {
+        font-size: 14px;
+    }
+
+    .search-submit {
+        padding: 10px 20px;
+        font-size: 14px;
+    }
+
+    /* ---------- 功能卡片：从“一行三个”变成“上下单列排列” ---------- */
+    .card-grid {
+        /* 覆盖上面的 auto-fit 自动列数，强制只有一列。
+           1fr = 占满整行宽度，于是三张卡片就变成竖直堆叠。 */
+        grid-template-columns: 1fr;
+
+        /* 单列时卡片上下挨着，间距可以比左右排列时小一点 */
+        gap: 18px;
+    }
+
+    /* 单列布局下卡片很宽，原来的大内边距会显得空，所以调紧凑一些 */
+    .card {
+        padding: 32px 24px 28px;
+    }
+
+    /* ---------- 区块间距与标题 ---------- */
+    .features {
+        padding: 52px 20px 64px;
+    }
+
+    .section-title {
+        font-size: 24px;
+        margin-bottom: 10px;
+    }
+
+    .section-subtitle {
+        font-size: 13px;
+        margin-bottom: 32px;
+    }
+
+    /* ---------- 数据统计条 ---------- */
+    .stats {
+        margin-top: -34px;              /* 重叠幅度收小，手机屏幕本来就紧张 */
+        padding: 0 20px;
+    }
+
+    .stats-card {
+        /* 四个数字挤一行会看不清，改成两行两列 */
+        grid-template-columns: repeat(2, 1fr);
+        gap: 22px 0;                    /* 行间距 22px、列间距 0（靠分隔线分开） */
+        padding: 22px 12px;
+    }
+
+    /* 改成两列之后，上半部分那条“每个前面都画线”的规则就不对了，
+       否则第 2、3 个前面都会多出一条线。先全部关掉…… */
+    .stat + .stat::before {
+        display: none;
+    }
+
+    /* ……再只给偶数位（也就是每行靠右的那一个）把线加回来。
+       两条规则优先级相同，写在后头的这条会生效。 */
+    .stat:nth-child(even)::before {
+        content: "";
+        display: block;
+        position: absolute;
+        left: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 1px;
+        height: 60%;
+        background-color: var(--color-border);
+    }
+
+    .stat-num {
+        font-size: 24px;
+    }
+
+    .stat-label {
+        font-size: 12px;
+    }
+
+    /* ---------- 热门好物 ---------- */
+    .hot {
+        padding: 56px 20px 0;
+    }
+
+    .goods-grid {
+        /* 手机上排成两列：单列的话卡片太大、一屏看不到几个商品 */
+        grid-template-columns: repeat(2, 1fr);
+        gap: 14px;
+    }
+
+    .goods-thumb {
+        font-size: 36px;
+    }
+
+    .goods-body {
+        padding: 12px 12px 14px;
+    }
+
+    .goods-name {
+        font-size: 14px;
+        min-height: 42px;               /* 14px × 1.5 × 2 行 */
+    }
+
+    .goods-price {
+        font-size: 18px;
+    }
+
+    /* ---------- 使用流程 ---------- */
+    .steps {
+        padding: 56px 20px 64px;
+    }
+
+    .steps-list {
+        grid-template-columns: 1fr;     /* 三列变一列，上下堆叠 */
+        gap: 34px;
+    }
+
+    /* 竖排之后，横向的虚线连接就失去意义了（会指向空白处），直接隐藏 */
+    .step:not(:last-child)::after {
+        display: none;
+    }
+
+    .step-num {
+        width: 60px;
+        height: 60px;
+        font-size: 22px;
+        line-height: 60px;
+        margin-bottom: 14px;
+    }
+
+    /* ---------- 排序工具栏 ---------- */
+    .goods-toolbar {
+        gap: 6px;
+        margin-top: -18px;
+        margin-bottom: 22px;
+    }
+
+    .toolbar-label {
+        /* 手机上横向空间紧张，“排序”两个字直接省掉也不影响理解 */
+        display: none;
+    }
+
+    .sort-btn {
+        padding: 7px 15px;
+        font-size: 12px;
+    }
+
+    /* ---------- 商品详情弹窗 ---------- */
+    .goods-modal[open] {
+        /* 左右两栏改成上下两段：手机上横着分栏，两栏都会太窄 */
+        grid-template-columns: 1fr;
+    }
+
+    .modal-thumb {
+        min-height: 150px;
+        font-size: 64px;
+    }
+
+    .modal-body {
+        padding: 22px 20px 24px;
+    }
+
+    .modal-title {
+        font-size: 19px;
+    }
+
+    .modal-price-now {
+        font-size: 26px;
+    }
+
+    .modal-desc {
+        margin-bottom: 22px;
+    }
+
+    /* ---------- 发布商品弹窗 ---------- */
+    .publish-form {
+        padding: 24px 20px 22px;
+    }
+
+    .publish-title {
+        font-size: 19px;
+    }
+
+    /* 两列并排的字段在手机上换成上下排列：
+       每列只剩一百多像素，输入框里连"¥"加数字都挤不下 */
+    .field-row {
+        grid-template-columns: 1fr;
+        gap: 18px;
+    }
+
+    .emoji-opt {
+        width: 42px;
+        height: 42px;
+        font-size: 20px;
+    }
+
+    /* ---------- 悬浮发布按钮 ---------- */
+    .fab {
+        right: 16px;
+        bottom: 16px;
+        padding: 13px 20px;
+        font-size: 14px;
+    }
+
+    .fab-plus {
+        font-size: 18px;
+    }
+
+    /* ---------- 顶部提示条 ---------- */
+    .toast {
+        padding: 10px 18px;
+        font-size: 13px;
+        /* 手机上宽度有限，提示文字放不下时允许换行，
+           但整体不能超出屏幕（减去左右各 16px 的边距） */
+        max-width: calc(100vw - 32px);
+        white-space: normal;
+        text-align: center;
+    }
+
+    /* ---------- 收藏与筛选 ---------- */
+    .fav-btn {
+        top: 8px;
+        right: 8px;
+        width: 30px;
+        height: 30px;
+        font-size: 15px;
+    }
+
+    /* 手机上工具栏会换成多行，竖线夹在中间反而添乱，直接藏掉 */
+    .toolbar-divider {
+        display: none;
+    }
+
+    .fav-filter {
+        padding: 7px 14px;
+        font-size: 12px;
+    }
+
+    .filter-tip {
+        padding: 10px 16px;
+        font-size: 12px;
+        gap: 8px;
+        /* 胶囊形圆角在换行后会显得怪，小屏换成普通圆角 */
+        border-radius: var(--radius);
+    }
+
+    .empty-state {
+        padding: 44px 20px;
+    }
+
+    .empty-icon {
+        font-size: 34px;
+    }
+
+    /* ---------- 私信弹窗 ---------- */
+    .chat-modal {
+        /* 手机上几乎铺满：聊天界面越宽越好用 */
+        width: calc(100vw - 24px);
+        height: calc(100vh - 48px);
+        height: calc(100dvh - 48px);
+        border-radius: 18px;
+    }
+
+    .chat-msg {
+        /* 窄屏上气泡占比放宽一点，否则一句话要折好几行 */
+        max-width: 85%;
+        font-size: 13px;
+    }
+
+    .chat-send {
+        padding: 11px 18px;
+    }
+
+    /* 小屏上头像缩一点，把宽度让给气泡 */
+    .chat-avatar--sm {
+        width: 26px;
+        height: 26px;
+        font-size: 12px;
+    }
+
+    .chat-row {
+        gap: 6px;
+    }
+
+    .quick-chip {
+        padding: 6px 12px;
+        font-size: 11px;
+    }
+}
+
+
+/* ============================================================
+  16. 内页通用组件
+
+   首页之外的那几个页面（二手交易 / 校园跑腿 / 失物招领 / 关于我们）
+   长得是同一个模子：顶部一个浅色页头，下面一块内容区。
+   这里把共用的部分抽出来，各页只要套结构就行。
+
+   本节的移动端规则直接跟在后面（同一节里），
+   改一个组件时不用再翻到文件另一头去找它的手机版。
+   ============================================================ */
+
+/* ---------- 16.1 页头 ----------
+   和首页那个大 Hero 是同一套渐变，但矮一些、文字小一些 ——
+   内页的重点是内容，页头只需要交代“这是哪儿、干什么的”。 */
+.page-hero {
+    position: relative;
+    overflow: hidden;         /* 裁掉装饰光斑溢出的部分 */
+    background: var(--gradient-hero);
+    padding: 52px 24px 56px;
+    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+}
+
+/* 复用首页那个柔光斑，换到右上角，让几个内页看起来是一家人 */
+.page-hero::after {
+    content: "";
+    position: absolute;
+    top: -120px;
+    right: -80px;
+    width: 300px;
+    height: 300px;
+    border-radius: 50%;
+    background: radial-gradient(circle, var(--lav-400) 0%, rgba(217, 201, 240, 0) 70%);
+    filter: blur(50px);
+    opacity: 0.6;
+    pointer-events: none;     /* 装饰元素不能拦截点击 */
+}
+
+.page-hero-inner {
+    position: relative;
+    z-index: 1;               /* 压在光斑上面 */
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* ---------- 面包屑 ----------
+   告诉用户“你在网站的哪一层”，顺便给一条回首页的路。 */
+.breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+    font-size: 13px;
+    color: #8B6E7C;
+}
+
+.breadcrumb a {
+    color: var(--color-primary);
+    transition: opacity var(--dur) var(--ease);
+}
+
+.breadcrumb a:hover {
+    opacity: 0.75;
+}
+
+/* 分隔符“/”单独淡一点，不抢视线 */
+.breadcrumb-sep {
+    color: var(--color-border-strong);
+}
+
+.page-title {
+    font-size: 36px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    margin-bottom: 10px;
+    color: var(--color-text);
+}
+
+.page-desc {
+    max-width: 660px;
+    font-size: 15px;
+    line-height: 1.75;
+    color: #8B6E7C;
+}
+
+/* ---------- 16.2 内容区 ---------- */
+.page-main {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 52px 24px 96px;
+}
+
+/* 区块小标题（内页里用，比首页的 .section-title 轻一档） */
+.block-title {
+    margin-bottom: 20px;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--color-text);
+}
+
+.block-title span {
+    color: var(--color-primary);
+}
+
+/* 每个区块之间拉开距离 */
+.page-block + .page-block {
+    margin-top: 56px;
+}
+
+/* ---------- 16.3 分类标签行 ---------- */
+.chip-row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 26px;
+}
+
+.chip {
+    padding: 9px 20px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--color-text-soft);
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-pill);
+    cursor: pointer;
+
+    transition: color var(--dur) var(--ease),
+                border-color var(--dur) var(--ease),
+                background-color var(--dur) var(--ease),
+                box-shadow var(--dur) var(--ease);
+}
+
+.chip:hover {
+    color: var(--color-primary);
+    border-color: var(--color-border-strong);
+}
+
+.chip.is-active {
+    color: #FFFFFF;
+    background: var(--gradient-brand);
+    border-color: transparent;
+    box-shadow: var(--shadow-glow);
+}
+
+/* ---------- 16.4 通用按钮 ----------
+   弹窗里那几个按钮是 .modal-btn，用途比较专一；
+   内页需要能随处摆放的通用按钮，所以另开一套。 */
+.btn {
+    display: inline-block;
+    padding: 12px 28px;
+    font-size: 14px;
+    font-weight: 600;
+    border: 1px solid transparent;
+    border-radius: var(--radius-pill);
+    cursor: pointer;
+    text-align: center;
+
+    transition: color var(--dur) var(--ease),
+                background-color var(--dur) var(--ease),
+                border-color var(--dur) var(--ease),
+                box-shadow var(--dur) var(--ease),
+                transform var(--dur) var(--ease),
+                filter var(--dur) var(--ease);
+}
+
+.btn--primary {
+    color: #FFFFFF;
+    background: var(--gradient-brand);
+    box-shadow: var(--shadow-glow);
+}
+
+.btn--primary:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.06);
+}
+
+.btn--ghost {
+    color: var(--color-primary);
+    background-color: var(--color-surface);
+    border-color: var(--color-border-strong);
+}
+
+.btn--ghost:hover {
+    background-color: var(--sakura-100);
+}
+
+/* 小一号，用在列表项里 */
+.btn--sm {
+    /* 8px 的上下内边距算出来只有 35px 高，手机上不好点。
+       提到 12px 之后接近 44px 这个触摸目标的底线。 */
+    padding: 12px 18px;
+    font-size: 13px;
+}
+
+/* 被禁用的按钮（比如已经被人接走的跑腿任务）。
+   必须写在 .btn--primary:hover 后面，否则“悬停上浮”会盖过这里的 transform: none。 */
+.btn:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+/* ---------- 已经接过的任务：按钮显示“已结单” ----------
+   ★ 注意它和上面的 :disabled 是两回事。
+     这个按钮**仍然可以点** —— 点一下是重新打开和对方的私信。
+     所以不能走 .btn:disabled 那套（会变成 cursor: not-allowed 并且点不动）。 */
+.take-btn--done {
+    color: var(--color-text-soft);
+    background-color: var(--sakura-50);
+    border-color: var(--color-border);
+}
+
+.take-btn--done:hover {
+    color: var(--color-primary);
+    background-color: var(--sakura-100);
+    border-color: var(--color-border-strong);
+}
+
+/* ---------- 列表页自带的搜索框 ----------
+   首页那个搜索框在 Hero 里，是“全站入口”；
+   这个是列表页上的筛选工具，边打字边过滤下面的卡片。
+
+   输入框本身复用了首页的 .search-input 类（字号、内边距、去掉默认边框那套），
+   所以这里只管外层的胶囊容器。
+   复用还带来一个好处：goods.js 里清空筛选时，那句
+   document.querySelector('.search-input').value = '' 会自动把它一起清掉。 */
+.list-search {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    max-width: 460px;
+    margin: 0 auto 24px;
+    padding: 0 20px;
+
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-pill);
+
+    transition: border-color var(--dur) var(--ease),
+                box-shadow var(--dur) var(--ease);
+}
+
+/* 和搜索卡片、输入框用的是同一招：内部获得焦点，整个容器一起亮起来 */
+.list-search:focus-within {
+    border-color: var(--sakura-400);
+    box-shadow: 0 0 0 3px rgba(255, 183, 197, 0.28);
+}
+
+.list-search-icon {
+    flex-shrink: 0;
+    font-size: 15px;
+    opacity: 0.55;
+}
+
+/* ---------- 结果计数行 ----------
+   内页列表上方那句“共 N 件”。筛选后由 JS 实时更新。 */
+.result-line {
+    margin-bottom: 18px;
+    font-size: 13px;
+    text-align: center;
+    color: var(--color-text-soft);
+}
+
+.result-line strong {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--color-primary);
+}
+
+/* ---------- 表单里的胶囊按钮行 ----------
+   套用 .chip-row 的外观，但改成左对齐、不要额外的下边距，
+   因为它出现在表单字段里，间距交给 .field 管。 */
+.chip-row--inline {
+    justify-content: flex-start;
+    margin-bottom: 0;
+}
+
+/* ---------- 16.5 列表卡片 ----------
+   跑腿任务、失物信息都用它：左边一个图标，中间文字，右边价格 + 按钮。 */
+.list-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.list-card {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+
+    padding: 20px 24px;
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-sm);
+
+    transition: transform var(--dur) var(--ease),
+                box-shadow var(--dur) var(--ease),
+                border-color var(--dur) var(--ease);
+}
+
+.list-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--color-border-strong);
+}
+
+.list-icon {
+    flex-shrink: 0;
+    width: 52px;
+    height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 24px;
+    background: var(--gradient-icon);
+    border-radius: 50%;
+}
+
+/* flex: 1 让它吃掉所有剩余宽度；min-width: 0 是配套的必备补丁，
+   否则里面的长文字不肯收缩，会把右边的内容顶出卡片 */
+.list-main {
+    flex: 1;
+    min-width: 0;
+}
+
+.list-head {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 5px;
+}
+
+.list-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--color-text);
+}
+
+/* 小标签：任务类型、状态等等 */
+.list-badge {
+    flex-shrink: 0;
+    padding: 2px 10px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--color-primary);
+    background-color: var(--sakura-100);
+    border-radius: var(--radius-pill);
+}
+
+/* 状态标签：正在进行中的用实心，和“待接单”区分开 */
+.list-badge--busy {
+    color: #FFFFFF;
+    background: var(--gradient-brand);
+}
+
+.list-desc {
+    margin-bottom: 6px;
+    font-size: 13px;
+    color: var(--color-text-soft);
+    line-height: 1.6;
+}
+
+.list-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 16px;
+    font-size: 12px;
+    color: var(--color-text-soft);
+}
+
+/* ★ 手机上很容易踩的坑：
+   flex 子元素默认的 min-width 是 auto，也就是「不许比我的内容更窄」。
+   所以某一行只要够长（比如「📍 菜鸟驿站 → 5 号楼 312 室东侧」），
+   它就会顶着整张卡片一起撑宽，把页面顶出横向滚动条。
+   给它一个可以收缩的余地，放不下时换行而不是溢出。 */
+.list-meta span {
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+.list-side {
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 10px;
+}
+
+.list-price {
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--color-primary);
+    font-variant-numeric: tabular-nums;
+}
+
+/* ---------- 16.6 关于我们：正文排版 ---------- */
+.prose {
+    max-width: 780px;
+    font-size: 15px;
+    line-height: 1.9;
+    color: var(--color-text-soft);
+}
+
+.prose p + p {
+    margin-top: 16px;
+}
+
+.prose strong {
+    color: var(--color-text);
+    font-weight: 600;
+}
+
+/* 卡片网格：关于我们里的“联系方式”“团队”等 */
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 20px;
+}
+
+.info-card {
+    padding: 26px 24px;
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-sm);
+}
+
+.info-card-icon {
+    margin-bottom: 12px;
+    font-size: 26px;
+    line-height: 1;
+}
+
+.info-card-title {
+    margin-bottom: 8px;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--color-text);
+}
+
+.info-card-text {
+    font-size: 13px;
+    line-height: 1.75;
+    color: var(--color-text-soft);
+}
+
+/* ---------- 16.7 常见问题 ---------- */
+.faq-item {
+    padding: 20px 0;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.faq-item:last-child {
+    border-bottom: none;
+}
+
+.faq-q {
+    margin-bottom: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--color-text);
+}
+
+.faq-a {
+    font-size: 14px;
+    line-height: 1.8;
+    color: var(--color-text-soft);
+}
+
+/* ---------- 16.8 内页的移动端规则 ---------- */
+@media (max-width: 768px) {
+
+    .page-hero {
+        padding: 38px 20px 42px;
+        border-radius: 0 0 22px 22px;
+    }
+
+    .page-title {
+        font-size: 26px;
+        letter-spacing: 1px;
+    }
+
+    .page-desc {
+        font-size: 14px;
+    }
+
+    .page-main {
+        padding: 36px 20px 64px;
+    }
+
+    .chip-row {
+        gap: 8px;
+        margin-bottom: 20px;
+    }
+
+    .chip {
+        padding: 7px 15px;
+        font-size: 12px;
+    }
+
+    /* 列表项改成上下两段：手机屏幕上放不下“图标 + 文字 + 价格按钮”三栏 */
+    .list-card {
+        flex-wrap: wrap;
+        gap: 14px;
+        padding: 16px;
+    }
+
+    .list-icon {
+        width: 44px;
+        height: 44px;
+        font-size: 20px;
+    }
+
+    /* 让文字区独占剩余宽度，价格和按钮被挤到下一行 */
+    .list-main {
+        flex: 1 1 calc(100% - 62px);
+    }
+
+    .list-side {
+        flex: 1 1 100%;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+
+        padding-top: 12px;
+        border-top: 1px dashed var(--color-border);
+    }
+
+    .page-block + .page-block {
+        margin-top: 40px;
+    }
+}
+
+
+/* ============================================================
+  17. 无障碍：尊重系统设置
+
+   prefers-reduced-motion 是操作系统里的一个开关
+   （Windows：设置 → 辅助功能 → 视觉效果 → 动画效果；
+     macOS：辅助功能 → 显示 → 减少动态效果）。
+   有些同学会因为前庭功能障碍而受不了元素飘来飘去，开这个开关可以让系统少动。
+
+   开启后，我们把所有动画和过渡都压缩到 0.01ms（几乎等于瞬间完成）。
+   注意不能直接写 none：那样会跳过过渡，某些依赖 transitionend 事件的逻辑会失效；
+   保留一个极短时长是最稳妥的做法。
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;   /* 关掉平滑滚动 */
+    }
+}

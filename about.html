@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<!-- 声明文档类型为 HTML5，浏览器会以“标准模式”渲染页面 -->
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="关于校园集市 —— 我们是谁、在做什么、怎么联系我们">
+    <title>关于我们 - 校园集市</title>
+
+    <!-- 样式表只有一份，所有页面共用 -->
+    <link rel="stylesheet" href="style.css">
+
+    <!-- 浏览器标签页上的小图标。SVG 一个文件适配所有尺寸，缩放不糊 -->
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+
+    <!-- 手机浏览器地址栏的配色，跟着站点主题走。没有这句会是一截白条 -->
+    <meta name="theme-color" content="#FFE1EA">
+
+    <!-- 脚本：common.js 是所有页面都要的公共部分，
+         后面的才是这一页专用的。defer 保证它们按书写顺序执行。 -->
+    <script src="common.js" defer></script>
+</head>
+<body>
+
+<header class="navbar">
+        <!-- 用一个容器把内容限制在最大宽度内并水平居中，内容不会贴到屏幕两边 -->
+        <div class="nav-container">
+
+            <!-- Logo 区域：点击可以回到首页 -->
+            <a href="index.html" class="logo">
+                <span class="logo-icon">🛒</span>
+                <!-- 这个 span 里的文字会被 CSS 做成“粉紫渐变文字” -->
+                <span class="logo-text">校园集市</span>
+            </a>
+
+            <!-- <nav> 表示“导航”区域，<ul> 是无序列表，<li> 是列表项 -->
+            <nav class="nav-wrap">
+                <ul class="nav-menu">
+                    <!-- class="active" 用来标记“当前所在页面”，CSS 会给它加下划线。
+                         每个页面把自己的那一个改成 active 即可，
+                         这样用户一眼就知道自己在哪儿。 -->
+                    <li><a href="index.html">首页</a></li>
+                    <li><a href="goods.html">二手交易</a></li>
+                    <li><a href="errand.html">校园跑腿</a></li>
+                    <li><a href="lost.html">失物招领</a></li>
+                    <li><a href="about.html" class="active">关于我们</a></li>
+                </ul>
+            </nav>
+
+        </div>
+    </header>
+
+    <main>
+
+        <section class="page-hero">
+            <div class="page-hero-inner">
+                <nav class="breadcrumb" aria-label="当前位置">
+                    <a href="index.html">首页</a>
+                    <span class="breadcrumb-sep" aria-hidden="true">/</span>
+                    <span aria-current="page">关于我们</span>
+                </nav>
+                <h1 class="page-title">关于我们</h1>
+                <p class="page-desc">校园集市是一个由学生自己搭起来的校内互助平台。我们不赚差价，只做信息和信任的搬运工。</p>
+            </div>
+        </section>
+
+        <section class="page-main">
+
+            <div class="page-block">
+                <h2 class="block-title">我们想解决<span>什么问题</span></h2>
+                <div class="prose">
+                    <p>每个学期都在重复同样的场景：<strong>毕业的学长学姐，一堆还能用的东西只能当废品扔</strong>；刚入学的新生，为了几本教材跑遍全城的书店；有人在群里喊了三天的失物招领，消息早就被刷没了。</p>
+                    <p>校园集市想把这些零散的需求集中到一处。二手交易、校园跑腿、失物招领，三件事本来就需要同一批人、同一个场景，与其分散在几十个微信群里，不如放在一个地方。</p>
+                    <p>目前的版本还没有后端服务器，你看到的数据一部分是演示内容，一部分存在你自己的浏览器里。<strong>它的重点是先把交互跑通</strong> ——商品能发、能筛、能收藏、能撤回，流程是完整的。</p>
+                </div>
+            </div>
+
+            <div class="page-block">
+                <h2 class="block-title">平台<span>数据</span></h2>
+                <div class="info-grid">
+                    <div class="info-card">
+                        <div class="info-card-icon" aria-hidden="true">👥</div>
+                        <h3 class="info-card-title">12,000+ 注册同学</h3>
+                        <p class="info-card-text">覆盖全校 18 个学院，从大一到大四都有。</p>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-card-icon" aria-hidden="true">📦</div>
+                        <h3 class="info-card-title">8,600+ 件在售商品</h3>
+                        <p class="info-card-text">平均每件商品在 3 天内找到新主人。</p>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-card-icon" aria-hidden="true">🏃</div>
+                        <h3 class="info-card-title">3,200+ 次跑腿完成</h3>
+                        <p class="info-card-text">最常见的三件事：取快递、带饭、代买。</p>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-card-icon" aria-hidden="true">💯</div>
+                        <h3 class="info-card-title">98% 好评率</h3>
+                        <p class="info-card-text">交易纠纷率不到 1%，绝大多数都在校内当面完成。</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="page-block">
+                <h2 class="block-title">我们<span>能做什么</span></h2>
+                <div class="info-grid">
+                    <div class="info-card">
+                        <div class="info-card-icon" aria-hidden="true">💰</div>
+                        <h3 class="info-card-title">二手交易</h3>
+                        <p class="info-card-text">球拍、自行车、首饰、茶酒……把闲置低价转给需要的同学，省钱又环保。</p>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-card-icon" aria-hidden="true">🏃</div>
+                        <h3 class="info-card-title">校园跑腿</h3>
+                        <p class="info-card-text">取快递、带饭、代买文具，发布任务或顺手接单，几分钟就能搞定。</p>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-card-icon" aria-hidden="true">🔍</div>
+                        <h3 class="info-card-title">失物招领</h3>
+                        <p class="info-card-text">丢东西别慌，捡到东西也别发愁，信息汇总在一处，对上就能拿回去。</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="page-block">
+                <h2 class="block-title">常见<span>问题</span></h2>
+                <div class="faq-item">
+                    <h3 class="faq-q">校园集市收手续费吗？</h3>
+                    <p class="faq-a">不收。我们只提供信息展示，交易本身是同学之间直接完成的，平台不参与收款，也不抽成。</p>
+                </div>
+                <div class="faq-item">
+                    <h3 class="faq-q">怎么保证交易安全？</h3>
+                    <p class="faq-a">建议全部在校内当面交易，验收无误再付款，尽量约在人多的地方，比如宿舍楼下或食堂门口。</p>
+                </div>
+                <div class="faq-item">
+                    <h3 class="faq-q">发布商品要审核吗？</h3>
+                    <p class="faq-a">目前是发布即可见，但平台会定期清理违规内容。酒类等特殊品类在上线正式版本后会加实名和年龄校验。</p>
+                </div>
+                <div class="faq-item">
+                    <h3 class="faq-q">我发的信息别人能看到多久？</h3>
+                    <p class="faq-a">在你主动撤回之前会一直展示。物品卖出或找回后，记得点开自己的商品卡片撤回一下。</p>
+                </div>
+                <div class="faq-item">
+                    <h3 class="faq-q">为什么我刷新之后收藏还在，发布的东西也在？</h3>
+                    <p class="faq-a">因为你自己的收藏和发布内容保存在浏览器的本地存储里。换一台设备或换一个浏览器就看不到了，跨设备同步需要等后端上线。</p>
+                </div>
+            </div>
+
+            <div class="page-block">
+                <h2 class="block-title">联系<span>我们</span></h2>
+                <div class="info-grid">
+                    <div class="info-card">
+                        <div class="info-card-icon" aria-hidden="true">📮</div>
+                        <h3 class="info-card-title">邮箱</h3>
+                        <p class="info-card-text">campus-market@example.edu</p>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-card-icon" aria-hidden="true">💬</div>
+                        <h3 class="info-card-title">校内反馈群</h3>
+                        <p class="info-card-text">QQ 群 123456789（工作日 9:00–21:00 有人值守）</p>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-card-icon" aria-hidden="true">📍</div>
+                        <h3 class="info-card-title">线下服务点</h3>
+                        <p class="info-card-text">大学生活动中心 2 楼 205 室，每周三下午开放</p>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+    </main>
+
+<div class="toast-wrap" id="toastWrap" aria-live="polite"></div>
+
+
+
+<footer class="footer">
+        <div class="footer-container">
+
+            <!-- 页脚文字链接：可以复用导航菜单的思路，也是一组 <ul> + <li> -->
+            <ul class="footer-links">
+                <li><a href="about.html">关于我们</a></li>
+                <li><a href="goods.html">二手交易</a></li>
+                <li><a href="errand.html">校园跑腿</a></li>
+                <li><a href="lost.html">失物招领</a></li>
+            </ul>
+
+            <!-- 版权信息：&copy; 是 HTML 实体，显示出来就是 © 符号 -->
+            <p class="footer-copyright">
+                &copy; 2026 校园集市 Campus Market · 为同学们用心打造
+            </p>
+
+        </div>
+    </footer>
+
+    <!-- 回到顶部。滚过一屏才出现，点一下平滑滚回去，逻辑在 common.js 里 -->
+    <button type="button" class="to-top" id="toTop" aria-label="回到顶部">
+        <span aria-hidden="true">↑</span>
+    </button>
+
+</body>
+</html>
