@@ -33,7 +33,11 @@ const CHAT_KEY = 'campus_market_chats';
 let chatSeller = '';
 
 // 当前对话属于哪个板块。决定招呼语、快捷短语和自动回复用什么。
-let chatScene = goods;
+// ★ 这里必须是一个「字符串」，而且要和下面 CHAT_SCENES 的键名对得上。
+//   原先写成裸的 goods，那是个不存在的变量，脚本一加载就抛
+//   ReferenceError，它后面的代码（包括打开私信、发送消息的监听）
+//   全都不会执行 —— 表现就是点「联系卖家」完全没反应。
+let chatScene = 'goods';
 
 // 弹窗是什么时候打开的（毫秒时间戳）。
 // 用来忽略“刚打开就被双击的第二下关掉”—— 见下面遮罩点击那一段。
